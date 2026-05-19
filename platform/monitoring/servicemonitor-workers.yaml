@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: remediation-worker
+  namespace: workers
+  labels:
+    app: remediation-worker
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: remediation-worker
+  namespaceSelector:
+    matchNames:
+    - workers
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s

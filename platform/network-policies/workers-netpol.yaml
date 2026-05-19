@@ -1,0 +1,255 @@
+---
+# NetworkPolicy for Workers (Generic Worker, Remediation Worker)
+# Zero-trust network policy for async background workers
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: workers-netpol
+  namespace: workers
+  labels:
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/part-of: gympt
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: worker
+
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # Prometheus metrics scraping
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8000
+
+  egress:
+    # DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+    # Kubernetes API server (for remediation actions)
+    # VPC CIDR for EKS control plane endpoint
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/16  # VPC CIDR
+      ports:
+        - protocol: TCP
+          port: 443
+
+    # Argo CD for rollback operations
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: argocd
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: argocd-server
+      ports:
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+
+    # Redis for job queues
+    - to:
+        - ipBlock:
+            cidr: 10.0.21.0/24  # Cache subnet CIDR
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Backend API (for status updates)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: backend-api
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: backend-api
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # HTTPS to AWS services (SQS, S3, DynamoDB, SES, CloudWatch, Secrets Manager)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.169.254/32
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+
+---
+# NetworkPolicy for Remediation Worker (specific rules)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: remediation-worker-netpol
+  namespace: workers
+  labels:
+    app.kubernetes.io/name: remediation-worker
+    app.kubernetes.io/component: worker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: remediation-worker
+
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # Prometheus metrics
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8000
+
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+
+    # Kubernetes API for pod restarts, rollbacks
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+
+    # Argo CD API
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: argocd
+      ports:
+        - protocol: TCP
+          port: 80
+
+    # Redis
+    - to:
+        - ipBlock:
+            cidr: 10.0.21.0/24
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # HTTPS for Slack webhooks and AWS services
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.169.254/32
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+
+---
+# NetworkPolicy for Generic Worker (specific rules)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: generic-worker-netpol
+  namespace: workers
+  labels:
+    app.kubernetes.io/name: generic-worker
+    app.kubernetes.io/component: worker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: generic-worker
+
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # Prometheus metrics
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8000
+
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+
+    # Redis for task queue
+    - to:
+        - ipBlock:
+            cidr: 10.0.21.0/24
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Backend API for updates
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: backend-api
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # HTTPS to AWS (SQS, S3, DynamoDB, SES)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.169.254/32
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443

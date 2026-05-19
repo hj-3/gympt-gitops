@@ -1,0 +1,14 @@
+apiVersion: v2
+name: backend-api
+description: GYMPT Backend API - Spring Boot REST API service
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - gympt
+  - backend
+  - spring-boot
+  - rest-api
+maintainers:
+  - name: GYMPT Platform Team
+    email: platform@gympt.example.com

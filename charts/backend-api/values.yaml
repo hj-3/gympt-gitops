@@ -1,0 +1,175 @@
+replicaCount: 2
+
+image:
+  repository: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/gympt/backend-api
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/gympt-backend-api-role
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/actuator/prometheus"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: api-dev.gympt.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: backend-api-tls
+      hosts:
+        - api-dev.gympt.example.com
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 30
+
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  path: /actuator/prometheus
+  labels:
+    prometheus: kube-prometheus
+
+networkPolicy:
+  enabled: false
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress: []
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+env:
+  - name: ENV
+    value: "dev"
+  - name: SPRING_PROFILES_ACTIVE
+    value: "dev"
+  - name: AWS_REGION
+    value: "ap-northeast-2"
+
+envFrom:
+  - configMapRef:
+      name: backend-api-config
+  - secretRef:
+      name: backend-api-secrets
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - backend-api
+          topologyKey: kubernetes.io/hostname
+
+configMap:
+  data:
+    LOG_LEVEL: "INFO"
+    CORS_ORIGINS: "https://dev.gympt.example.com"
+    AGENT_SERVICE_URL: "http://agent-service:8001"
+    POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service:8002"
+    REPORT_SERVICE_URL: "http://report-service:8003"
+    NOTIFICATION_SERVICE_URL: "http://notification-service:8004"
+
+externalSecrets:
+  enabled: true
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: ClusterSecretStore
+  data:
+    - secretKey: DB_PASSWORD
+      remoteRef:
+        key: gympt/dev/database
+        property: password
+    - secretKey: REDIS_PASSWORD
+      remoteRef:
+        key: gympt/dev/redis
+        property: password
+    - secretKey: JWT_SECRET
+      remoteRef:
+        key: gympt/dev/jwt
+        property: secret

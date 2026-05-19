@@ -1,0 +1,72 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: gympt-apps
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: GymPT application services
+
+  sourceRepos:
+    - 'https://github.com/gympt/gympt-gitops.git'
+
+  destinations:
+    - namespace: 'gympt-*'
+      server: https://kubernetes.default.svc
+    - namespace: default
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+
+  namespaceResourceWhitelist:
+    - group: ''
+      kind: Service
+    - group: ''
+      kind: ConfigMap
+    - group: ''
+      kind: Secret
+    - group: ''
+      kind: ServiceAccount
+    - group: ''
+      kind: PersistentVolumeClaim
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: StatefulSet
+    - group: apps
+      kind: DaemonSet
+    - group: batch
+      kind: Job
+    - group: batch
+      kind: CronJob
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler
+    - group: policy
+      kind: PodDisruptionBudget
+    - group: monitoring.coreos.com
+      kind: ServiceMonitor
+    - group: external-secrets.io
+      kind: ExternalSecret
+
+  roles:
+    - name: developer
+      description: Developer role with read-only access
+      policies:
+        - p, proj:gympt-apps:developer, applications, get, gympt-apps/*, allow
+        - p, proj:gympt-apps:developer, applications, sync, gympt-apps/*, allow
+      groups:
+        - gympt-developers
+
+    - name: admin
+      description: Admin role with full access
+      policies:
+        - p, proj:gympt-apps:admin, applications, *, gympt-apps/*, allow
+      groups:
+        - gympt-admins

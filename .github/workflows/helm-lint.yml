@@ -1,0 +1,139 @@
+name: Helm Lint and Test
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'charts/**'
+      - '.github/workflows/helm-lint.yml'
+
+jobs:
+  lint:
+    name: Helm Lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        chart:
+          - backend-api
+          - agent-service
+          - posture-analysis-service
+          - report-service
+          - remediation-worker
+          - generic-worker
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.13.0'
+
+      - name: Helm Lint
+        run: |
+          helm lint charts/${{ matrix.chart }}
+
+      - name: Helm Template (dev)
+        run: |
+          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
+            -f charts/${{ matrix.chart }}/values-dev.yaml \
+            --debug
+
+      - name: Helm Template (prod)
+        run: |
+          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
+            -f charts/${{ matrix.chart }}/values-prod.yaml \
+            --debug
+
+      - name: Check for required templates
+        run: |
+          REQUIRED_TEMPLATES=(
+            "deployment.yaml"
+            "service.yaml"
+            "serviceaccount.yaml"
+          )
+          for template in "${REQUIRED_TEMPLATES[@]}"; do
+            if [ ! -f "charts/${{ matrix.chart }}/templates/$template" ]; then
+              echo "::error::Missing required template: $template"
+              exit 1
+            fi
+          done
+
+      - name: Validate values files
+        run: |
+          if [ ! -f "charts/${{ matrix.chart }}/values-dev.yaml" ]; then
+            echo "::error::Missing values-dev.yaml"
+            exit 1
+          fi
+          if [ ! -f "charts/${{ matrix.chart }}/values-prod.yaml" ]; then
+            echo "::error::Missing values-prod.yaml"
+            exit 1
+          fi
+
+  test:
+    name: Helm Test with Chart Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install chart-testing
+        uses: helm/chart-testing-action@v2
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run chart-testing (lint)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }}
+
+  comment:
+    name: Comment PR
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    if: always()
+    steps:
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const lintStatus = '${{ needs.lint.result }}';
+            const testStatus = '${{ needs.test.result }}';
+            
+            const statusIcon = (status) => {
+              return status === 'success' ? '✅' : status === 'failure' ? '❌' : '⏭️';
+            };
+            
+            const output = `## Helm Lint Results
+            
+            - Helm Lint: ${statusIcon(lintStatus)} \`${lintStatus}\`
+            - Chart Testing: ${statusIcon(testStatus)} \`${testStatus}\`
+            
+            ${lintStatus === 'success' && testStatus === 'success' ? '**All checks passed!** 🎉' : '**Some checks failed.** Please review the logs.'}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });

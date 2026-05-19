@@ -1,0 +1,104 @@
+---
+# NetworkPolicy for Posture Analysis Service
+# Zero-trust network policy for WebSocket and real-time posture analysis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: posture-analysis-netpol
+  namespace: posture-analysis
+  labels:
+    app.kubernetes.io/name: posture-analysis-service
+    app.kubernetes.io/component: network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: posture-analysis-service
+
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # WebSocket connections from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8002
+
+    # Allow traffic from backend-api
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: backend-api
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: backend-api
+      ports:
+        - protocol: TCP
+          port: 8002
+
+    # Prometheus metrics scraping
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8002
+
+  egress:
+    # DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+    # Redis for pub/sub and real-time events
+    - to:
+        - ipBlock:
+            cidr: 10.0.21.0/24  # Cache subnet CIDR
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # HTTPS to AWS (DynamoDB, S3, SQS, Secrets Manager)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.169.254/32
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+
+    # ML model endpoint (if internal)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ml-models
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/component: inference
+      ports:
+        - protocol: TCP
+          port: 8080

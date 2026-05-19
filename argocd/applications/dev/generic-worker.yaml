@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: generic-worker-dev
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: generic-worker
+    app.kubernetes.io/part-of: gympt
+    environment: dev
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: gympt-apps
+
+  source:
+    repoURL: https://github.com/gympt/gympt-gitops.git
+    targetRevision: main
+    path: charts/generic-worker
+    helm:
+      releaseName: generic-worker
+      valueFiles:
+        - values.yaml
+        - values-dev.yaml
+      parameters:
+        - name: image.tag
+          value: "dev-latest"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: workers
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - Replace=false
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  revisionHistoryLimit: 10
+
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas  # Allow HPA to manage replicas

@@ -1,0 +1,92 @@
+---
+# NetworkPolicy for Agent Service
+# Zero-trust network policy for AI agent service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: agent-service-netpol
+  namespace: agent-service
+  labels:
+    app.kubernetes.io/name: agent-service
+    app.kubernetes.io/component: network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: agent-service
+
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # Allow traffic from backend-api
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: backend-api
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: backend-api
+      ports:
+        - protocol: TCP
+          port: 8000
+
+    # Allow Prometheus scraping
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 8000
+
+  egress:
+    # DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+    # Redis for session management
+    - to:
+        - ipBlock:
+            cidr: 10.0.21.0/24  # Cache subnet CIDR
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Backend API (internal service communication)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: backend-api
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: backend-api
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # HTTPS to AWS (DynamoDB, SQS, Bedrock, Secrets Manager)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 169.254.169.254/32
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443

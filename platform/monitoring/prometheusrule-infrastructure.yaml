@@ -1,0 +1,162 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: infrastructure-rules
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+  - name: gpu.rules
+    interval: 30s
+    rules:
+    # GPU High Usage
+    - alert: GPUHighUtilization
+      expr: |
+        DCGM_FI_DEV_GPU_UTIL{namespace="posture-analysis"} > 95
+      for: 10m
+      labels:
+        severity: warning
+        component: gpu
+      annotations:
+        summary: "GPU utilization is high"
+        description: "GPU {{ $labels.gpu }} on {{ $labels.pod }} is at {{ $value }}%"
+        runbook_url: "https://runbooks.gympt.com/gpu-high-usage"
+
+    # GPU Memory High
+    - alert: GPUMemoryHigh
+      expr: |
+        (
+          DCGM_FI_DEV_FB_USED{namespace="posture-analysis"}
+          /
+          DCGM_FI_DEV_FB_FREE{namespace="posture-analysis"}
+        ) > 0.9
+      for: 5m
+      labels:
+        severity: critical
+        component: gpu
+      annotations:
+        summary: "GPU memory usage is high"
+        description: "GPU memory usage is {{ $value | humanizePercentage }}"
+        runbook_url: "https://runbooks.gympt.com/gpu-memory-high"
+
+  - name: redis.rules
+    interval: 30s
+    rules:
+    # Redis Connection Error
+    - alert: RedisConnectionError
+      expr: |
+        redis_connected_clients{namespace="elasticache"} == 0
+      for: 2m
+      labels:
+        severity: critical
+        component: redis
+      annotations:
+        summary: "Redis has no connected clients"
+        description: "Redis instance {{ $labels.instance }} has zero connections"
+        runbook_url: "https://runbooks.gympt.com/redis-connection-error"
+
+    # Redis High Memory
+    - alert: RedisHighMemory
+      expr: |
+        (
+          redis_memory_used_bytes{namespace="elasticache"}
+          /
+          redis_memory_max_bytes{namespace="elasticache"}
+        ) > 0.9
+      for: 5m
+      labels:
+        severity: warning
+        component: redis
+      annotations:
+        summary: "Redis memory usage is high"
+        description: "Redis memory usage is {{ $value | humanizePercentage }}"
+        runbook_url: "https://runbooks.gympt.com/redis-memory-high"
+
+    # Redis High Eviction
+    - alert: RedisHighEvictionRate
+      expr: |
+        rate(redis_evicted_keys_total{namespace="elasticache"}[5m]) > 100
+      for: 5m
+      labels:
+        severity: warning
+        component: redis
+      annotations:
+        summary: "Redis eviction rate is high"
+        description: "Redis is evicting {{ $value }} keys/sec"
+        runbook_url: "https://runbooks.gympt.com/redis-eviction"
+
+  - name: bedrock.rules
+    interval: 30s
+    rules:
+    # Bedrock Error Rate
+    - alert: BedrockHighErrorRate
+      expr: |
+        (
+          sum(rate(bedrock_api_errors_total[5m]))
+          /
+          sum(rate(bedrock_api_requests_total[5m]))
+        ) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+        component: bedrock
+      annotations:
+        summary: "Bedrock API error rate is high"
+        description: "Bedrock error rate is {{ $value | humanizePercentage }}"
+        runbook_url: "https://runbooks.gympt.com/bedrock-error"
+
+    # Bedrock Throttling
+    - alert: BedrockThrottling
+      expr: |
+        rate(bedrock_api_throttled_total[5m]) > 10
+      for: 5m
+      labels:
+        severity: warning
+        component: bedrock
+      annotations:
+        summary: "Bedrock API is being throttled"
+        description: "Bedrock throttling rate is {{ $value }} req/sec"
+        runbook_url: "https://runbooks.gympt.com/bedrock-throttling"
+
+  - name: sqs.rules
+    interval: 30s
+    rules:
+    # SQS Queue Backlog
+    - alert: SQSQueueBacklog
+      expr: |
+        aws_sqs_approximate_number_of_messages_visible > 1000
+      for: 10m
+      labels:
+        severity: warning
+        component: sqs
+      annotations:
+        summary: "SQS queue has high backlog"
+        description: "Queue {{ $labels.queue_name }} has {{ $value }} messages"
+        runbook_url: "https://runbooks.gympt.com/sqs-backlog"
+
+    # SQS Old Messages
+    - alert: SQSMessageAge
+      expr: |
+        aws_sqs_approximate_age_of_oldest_message > 1800
+      for: 5m
+      labels:
+        severity: critical
+        component: sqs
+      annotations:
+        summary: "SQS queue has old messages"
+        description: "Oldest message in {{ $labels.queue_name }} is {{ $value }}s old"
+        runbook_url: "https://runbooks.gympt.com/sqs-old-messages"
+
+    # DLQ Messages
+    - alert: SQSDLQMessages
+      expr: |
+        aws_sqs_approximate_number_of_messages_visible{queue_name=~".*-dlq"} > 10
+      for: 5m
+      labels:
+        severity: critical
+        component: sqs
+      annotations:
+        summary: "Dead letter queue has messages"
+        description: "DLQ {{ $labels.queue_name }} has {{ $value }} messages"
+        runbook_url: "https://runbooks.gympt.com/sqs-dlq"

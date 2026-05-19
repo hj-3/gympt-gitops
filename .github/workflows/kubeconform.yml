@@ -1,0 +1,92 @@
+name: Kubeconform Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'charts/**'
+      - 'argocd/**'
+      - '.github/workflows/kubeconform.yml'
+
+jobs:
+  validate:
+    name: Validate Kubernetes Manifests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        chart:
+          - backend-api
+          - agent-service
+          - posture-analysis-service
+          - report-service
+          - remediation-worker
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+
+      - name: Install kubeconform
+        run: |
+          wget https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar xf kubeconform-linux-amd64.tar.gz
+          sudo mv kubeconform /usr/local/bin
+
+      - name: Render Helm templates (dev)
+        run: |
+          mkdir -p rendered/${{ matrix.chart }}/dev
+          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
+            -f charts/${{ matrix.chart }}/values-dev.yaml \
+            --output-dir rendered/${{ matrix.chart }}/dev
+
+      - name: Validate dev manifests
+        run: |
+          kubeconform -summary -output json \
+            -kubernetes-version 1.35.0 \
+            -strict \
+            rendered/${{ matrix.chart }}/dev
+
+      - name: Render Helm templates (prod)
+        run: |
+          mkdir -p rendered/${{ matrix.chart }}/prod
+          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
+            -f charts/${{ matrix.chart }}/values-prod.yaml \
+            --output-dir rendered/${{ matrix.chart }}/prod
+
+      - name: Validate prod manifests
+        run: |
+          kubeconform -summary -output json \
+            -kubernetes-version 1.35.0 \
+            -strict \
+            rendered/${{ matrix.chart }}/prod
+
+  validate-argocd:
+    name: Validate Argo CD Applications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          wget https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar xf kubeconform-linux-amd64.tar.gz
+          sudo mv kubeconform /usr/local/bin
+
+      - name: Download Argo CD CRD schema
+        run: |
+          mkdir -p schemas
+          wget -O schemas/application-crd.json \
+            https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/crds/application-crd.yaml
+
+      - name: Validate Argo CD Applications
+        run: |
+          kubeconform -summary \
+            -kubernetes-version 1.35.0 \
+            -schema-location default \
+            -schema-location 'schemas/{{ .ResourceKind }}.json' \
+            argocd/applications/**/*.yaml \
+            argocd/app-of-apps/*.yaml \
+            argocd/projects/*.yaml

@@ -1,0 +1,102 @@
+# Development environment values for backend-api
+
+replicaCount: 2
+
+image:
+  repository: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/gympt/backend-api
+  tag: "dev-latest"
+
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/gympt-dev-backend-api-role
+
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:123456789012:certificate/dev-cert
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
+  hosts:
+    - host: api-dev.gympt.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: backend-api-tls
+      hosts:
+        - api-dev.gympt.com
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+env:
+  - name: ENV
+    value: "dev"
+  - name: SPRING_PROFILES_ACTIVE
+    value: "dev"
+  - name: AWS_REGION
+    value: "ap-northeast-2"
+  - name: LOG_LEVEL
+    value: "DEBUG"
+
+configMap:
+  data:
+    LOG_LEVEL: "DEBUG"
+    CORS_ORIGINS: "https://dev.gympt.com"
+    AGENT_SERVICE_URL: "http://agent-service:8001"
+    POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service:8002"
+    REPORT_SERVICE_URL: "http://report-service:8003"
+
+externalSecrets:
+  enabled: true
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: ClusterSecretStore
+  data:
+    - secretKey: DB_PASSWORD
+      remoteRef:
+        key: gympt/dev/database
+        property: password
+    - secretKey: REDIS_PASSWORD
+      remoteRef:
+        key: gympt/dev/redis
+        property: password
+    - secretKey: JWT_SECRET
+      remoteRef:
+        key: gympt/dev/jwt
+        property: secret
+    - secretKey: AWS_ACCESS_KEY_ID
+      remoteRef:
+        key: gympt/dev/aws
+        property: accessKeyId
+    - secretKey: AWS_SECRET_ACCESS_KEY
+      remoteRef:
+        key: gympt/dev/aws
+        property: secretAccessKey
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+
+networkPolicy:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: false

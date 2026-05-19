@@ -1,0 +1,148 @@
+# External Secrets Operator Helm Chart Values
+# Installation: helm install external-secrets external-secrets/external-secrets -n external-secrets-system --create-namespace -f values.yaml
+
+# Install CRDs during chart installation
+installCRDs: true
+
+# Replica count for ESO controller
+replicaCount: 2
+
+# External Secrets Operator image
+image:
+  repository: ghcr.io/external-secrets/external-secrets
+  pullPolicy: IfNotPresent
+  tag: v0.9.11
+
+# Image pull secrets for private registries (if needed)
+imagePullSecrets: []
+
+# ServiceAccount configuration
+# IMPORTANT: This ServiceAccount will be annotated with IRSA role ARN
+serviceAccount:
+  create: true
+  annotations:
+    # Replace ACCOUNT_ID with actual AWS account ID
+    # This IAM role should have permissions to access Secrets Manager and Parameter Store
+    eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/gympt-external-secrets-operator"
+  name: external-secrets-sa
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Pod security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+# Container security context
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  capabilities:
+    drop:
+      - ALL
+
+# Node selector for scheduling pods
+nodeSelector: {}
+
+# Tolerations for pod scheduling
+tolerations: []
+
+# Affinity rules for pod scheduling
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - external-secrets
+          topologyKey: kubernetes.io/hostname
+
+# Webhook configuration
+webhook:
+  port: 9443
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# Certificate controller configuration
+certController:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# Metrics configuration
+metrics:
+  service:
+    enabled: true
+    port: 8080
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+    namespace: monitoring
+    labels:
+      release: kube-prometheus-stack
+
+# Logging configuration
+log:
+  level: info
+  format: json
+
+# Concurrent reconciles for ExternalSecret resources
+concurrent: 1
+
+# Leader election configuration
+leaderElect: true
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Priority class for pod scheduling
+priorityClassName: ""
+
+# Pod annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/metrics"
+
+# Pod labels
+podLabels:
+  app.kubernetes.io/component: controller
+  app.kubernetes.io/part-of: external-secrets
+
+# Extra environment variables
+extraEnv: []
+
+# Extra volumes
+extraVolumes: []
+
+# Extra volume mounts
+extraVolumeMounts: []

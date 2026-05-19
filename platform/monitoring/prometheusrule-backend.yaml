@@ -1,0 +1,90 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: backend-api-rules
+  namespace: backend-api
+  labels:
+    release: monitoring
+spec:
+  groups:
+  - name: backend-api.rules
+    interval: 30s
+    rules:
+    # 5xx Error Rate
+    - alert: BackendHighErrorRate
+      expr: |
+        (
+          sum(rate(http_server_requests_seconds_count{namespace="backend-api",status=~"5.."}[5m]))
+          /
+          sum(rate(http_server_requests_seconds_count{namespace="backend-api"}[5m]))
+        ) * 100 > 5
+      for: 5m
+      labels:
+        severity: critical
+        component: backend-api
+      annotations:
+        summary: "Backend API has high 5xx error rate"
+        description: "Backend API error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+        runbook_url: "https://runbooks.gympt.com/backend-high-error-rate"
+
+    # High Latency (P99)
+    - alert: BackendHighLatency
+      expr: |
+        histogram_quantile(0.99, 
+          sum(rate(http_server_requests_seconds_bucket{namespace="backend-api"}[5m])) by (le, uri)
+        ) > 2
+      for: 10m
+      labels:
+        severity: warning
+        component: backend-api
+      annotations:
+        summary: "Backend API has high latency"
+        description: "Backend API P99 latency is {{ $value }}s for {{ $labels.uri }}"
+        runbook_url: "https://runbooks.gympt.com/backend-high-latency"
+
+    # Pod Restart
+    - alert: BackendPodRestarting
+      expr: |
+        rate(kube_pod_container_status_restarts_total{namespace="backend-api"}[15m]) > 0
+      for: 5m
+      labels:
+        severity: warning
+        component: backend-api
+      annotations:
+        summary: "Backend API pod is restarting"
+        description: "Pod {{ $labels.pod }} has restarted {{ $value }} times in the last 15 minutes"
+        runbook_url: "https://runbooks.gympt.com/pod-restart"
+
+    # Database Connection Pool Exhaustion
+    - alert: BackendDBPoolExhaustion
+      expr: |
+        (
+          hikaricp_connections_active{namespace="backend-api"}
+          /
+          hikaricp_connections_max{namespace="backend-api"}
+        ) > 0.9
+      for: 5m
+      labels:
+        severity: critical
+        component: backend-api
+      annotations:
+        summary: "Database connection pool near exhaustion"
+        description: "Connection pool usage is {{ $value | humanizePercentage }}"
+        runbook_url: "https://runbooks.gympt.com/db-pool-exhaustion"
+
+    # JVM Memory Pressure
+    - alert: BackendHighMemoryUsage
+      expr: |
+        (
+          jvm_memory_used_bytes{namespace="backend-api",area="heap"}
+          /
+          jvm_memory_max_bytes{namespace="backend-api",area="heap"}
+        ) > 0.9
+      for: 10m
+      labels:
+        severity: warning
+        component: backend-api
+      annotations:
+        summary: "Backend API heap memory usage is high"
+        description: "Heap memory usage is {{ $value | humanizePercentage }}"
+        runbook_url: "https://runbooks.gympt.com/high-memory"

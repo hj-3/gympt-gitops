@@ -1,0 +1,15 @@
+apiVersion: v2
+name: posture-analysis-service
+description: GymPT Posture Analysis Service - Real-time posture analysis with GPU support
+type: application
+version: 1.0.0
+appVersion: "0.1.0"
+keywords:
+  - gympt
+  - posture
+  - analysis
+  - fastapi
+  - gpu
+maintainers:
+  - name: GymPT Team
+    email: team@gympt.com

@@ -1,0 +1,35 @@
+# Archive
+archive/
+
+# Helm
+charts/**/charts/
+*.tgz
+**/.helmignore
+
+# Kubernetes
+**/.kubeconfig
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+
+# Secrets (should use External Secrets Operator)
+secrets.yaml
+*.secret.yaml
+
+# Local testing
+local/
+
+# Argo CD
+argocd-login.txt

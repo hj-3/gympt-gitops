@@ -1,0 +1,107 @@
+---
+# Namespace labels for NetworkPolicy selectors
+# Apply these labels to enable namespace-based network policies
+
+# Backend API namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: backend-api
+  labels:
+    name: backend-api
+    kubernetes.io/metadata.name: backend-api
+    app.kubernetes.io/part-of: gympt
+    environment: dev
+
+---
+# Agent Service namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agent-service
+  labels:
+    name: agent-service
+    kubernetes.io/metadata.name: agent-service
+    app.kubernetes.io/part-of: gympt
+    environment: dev
+
+---
+# Posture Analysis namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: posture-analysis
+  labels:
+    name: posture-analysis
+    kubernetes.io/metadata.name: posture-analysis
+    app.kubernetes.io/part-of: gympt
+    environment: dev
+
+---
+# Workers namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workers
+  labels:
+    name: workers
+    kubernetes.io/metadata.name: workers
+    app.kubernetes.io/part-of: gympt
+    environment: dev
+
+---
+# Report Service namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: report-service
+  labels:
+    name: report-service
+    kubernetes.io/metadata.name: report-service
+    app.kubernetes.io/part-of: gympt
+    environment: dev
+
+---
+# Notification Service namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: notification-service
+  labels:
+    name: notification-service
+    kubernetes.io/metadata.name: notification-service
+    app.kubernetes.io/part-of: gympt
+    environment: dev
+
+---
+# Monitoring namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    name: monitoring
+    kubernetes.io/metadata.name: monitoring
+    app.kubernetes.io/part-of: platform
+
+---
+# Ingress namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress-nginx
+  labels:
+    name: ingress-nginx
+    kubernetes.io/metadata.name: ingress-nginx
+    app.kubernetes.io/part-of: platform
+
+---
+# Argo CD namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+  labels:
+    name: argocd
+    kubernetes.io/metadata.name: argocd
+    app.kubernetes.io/part-of: platform
