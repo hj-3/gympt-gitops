@@ -3,8 +3,8 @@
 replicaCount: 2
 
 image:
-  repository: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/gympt/posture-analysis-service
-  tag: "v1.0.0"
+  repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/posture-analysis-service
+  tag: "57c3aed"
 
 resources:
   limits:

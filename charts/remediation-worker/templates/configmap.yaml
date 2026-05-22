@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "generic-worker.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "generic-worker.labels" . | nindent 4 }}
+data:
+  worker.conf: |
+    # Generic Worker Configuration
+    # This config is mounted to the container for additional settings
+
+    [worker]
+    concurrency = {{ .Values.env | filter "name=WORKER_CONCURRENCY" | first | .value | default "4" }}
+    max_tasks_per_child = {{ .Values.env | filter "name=WORKER_MAX_TASKS_PER_CHILD" | first | .value | default "1000" }}
+
+    [logging]
+    level = {{ .Values.env | filter "name=LOG_LEVEL" | first | .value | default "INFO" }}
+    format = {{ .Values.env | filter "name=LOG_FORMAT" | first | .value | default "json" }}
+
+    [metrics]
+    enabled = true
+    port = {{ .Values.env | filter "name=METRICS_PORT" | first | .value | default "8000" }}

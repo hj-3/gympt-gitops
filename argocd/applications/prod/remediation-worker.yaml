@@ -9,7 +9,7 @@ spec:
   project: gympt-apps
 
   source:
-    repoURL: https://github.com/gympt/gympt-gitops.git
+    repoURL: https://github.com/hj-3/gympt-gitops.git
     targetRevision: main
     path: charts/remediation-worker
     helm:
