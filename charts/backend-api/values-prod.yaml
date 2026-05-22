@@ -65,12 +65,12 @@ configMap:
     REPORT_SERVICE_URL: "http://report-service:8003"
     NOTIFICATION_SERVICE_URL: "http://notification-service:8004"
     # Database configuration
-    DB_HOST: "gympt-prod-db.cluster-xyz.ap-northeast-2.rds.amazonaws.com"
+    DB_HOST: "gympt-prod-postgres.cpuskg4g6hoy.ap-northeast-2.rds.amazonaws.com"
     DB_PORT: "5432"
     DB_NAME: "gympt_prod"
     DB_USERNAME: "gympt_admin"
     # Redis configuration
-    REDIS_HOST: "gympt-prod-redis.abc123.ng.0001.apne2.cache.amazonaws.com"
+    REDIS_HOST: "master.gympt-prod-redis.8yu9pt.apn2.cache.amazonaws.com"
     REDIS_PORT: "6379"
     # AWS configuration
     AWS_ACCOUNT_ID: "337112169365"
