@@ -63,6 +63,30 @@ configMap:
     AGENT_SERVICE_URL: "http://agent-service:8001"
     POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service:8002"
     REPORT_SERVICE_URL: "http://report-service:8003"
+    NOTIFICATION_SERVICE_URL: "http://notification-service:8004"
+    # Database configuration
+    DB_HOST: "gympt-prod-db.cluster-xyz.ap-northeast-2.rds.amazonaws.com"
+    DB_PORT: "5432"
+    DB_NAME: "gympt_prod"
+    DB_USERNAME: "gympt_admin"
+    # Redis configuration
+    REDIS_HOST: "gympt-prod-redis.abc123.ng.0001.apne2.cache.amazonaws.com"
+    REDIS_PORT: "6379"
+    # AWS configuration
+    AWS_ACCOUNT_ID: "337112169365"
+    # S3 buckets
+    S3_MEDIA_BUCKET: "gympt-prod-media"
+    S3_REPORT_BUCKET: "gympt-prod-reports"
+    # DynamoDB tables
+    DYNAMODB_WORKOUT_SESSIONS_TABLE: "gympt-prod-workout-sessions"
+    DYNAMODB_POSTURE_EVENTS_TABLE: "gympt-prod-posture-events"
+    DYNAMODB_WEARABLE_EVENTS_TABLE: "gympt-prod-wearable-events"
+    DYNAMODB_AGENT_INTERACTIONS_TABLE: "gympt-prod-agent-interactions"
+    # SQS queues
+    SQS_POSTURE_EVENT_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-posture-events"
+    SQS_REPORT_GENERATION_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-report-generation"
+    # EventBridge
+    EVENTBRIDGE_BUS_NAME: "gympt-prod-event-bus"
 
 externalSecrets:
   enabled: false  # Disabled - ClusterSecretStore not configured yet
