@@ -4,7 +4,7 @@ replicaCount: 3
 
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/backend-api
-  tag: "57c3aed-fix"  # Always use specific version tags in production
+  tag: "d4c82e5"  # Hibernate ddl-auto: update for schema creation
 
 serviceAccount:
   annotations:
