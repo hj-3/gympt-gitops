@@ -65,7 +65,7 @@ configMap:
     REPORT_SERVICE_URL: "http://report-service:8003"
 
 externalSecrets:
-  enabled: true
+  enabled: false  # Disabled - ClusterSecretStore not configured yet
   refreshInterval: 1h
   secretStoreRef:
     name: aws-secrets-manager
