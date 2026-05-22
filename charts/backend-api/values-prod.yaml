@@ -21,14 +21,14 @@ ingress:
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
   hosts:
-    - host: api.gympt.com
+    - host: api.g2mpt.com
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: backend-api-tls
       hosts:
-        - api.gympt.com
+        - api.g2mpt.com
 
 resources:
   limits:
