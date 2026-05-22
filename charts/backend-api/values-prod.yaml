@@ -67,8 +67,8 @@ configMap:
     # Database configuration
     DB_HOST: "gympt-prod-postgres.cpuskg4g6hoy.ap-northeast-2.rds.amazonaws.com"
     DB_PORT: "5432"
-    DB_NAME: "gympt_prod"
-    DB_USERNAME: "gympt_admin"
+    DB_NAME: "gympt"
+    DB_USERNAME: "gymptadmin"
     # Redis configuration
     REDIS_HOST: "master.gympt-prod-redis.8yu9pt.apn2.cache.amazonaws.com"
     REDIS_PORT: "6379"
