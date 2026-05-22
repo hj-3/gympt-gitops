@@ -54,10 +54,13 @@ spec:
           {{- toYaml .Values.resources | nindent 10 }}
         env:
           {{- toYaml .Values.env | nindent 10 }}
-        {{- if .Values.envFrom }}
         envFrom:
-          {{- toYaml .Values.envFrom | nindent 10 }}
-        {{- end }}
+          - configMapRef:
+              name: {{ include "backend-api.fullname" . }}-config
+          {{- if .Values.externalSecrets.enabled }}
+          - secretRef:
+              name: {{ include "backend-api.fullname" . }}-secrets
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
