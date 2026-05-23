@@ -90,3 +90,6 @@ serviceMonitor:
 
 networkPolicy:
   enabled: false
+
+externalSecrets:
+  enabled: false
