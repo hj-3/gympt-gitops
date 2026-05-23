@@ -1,6 +1,6 @@
 # Production environment values for backend-api
 
-replicaCount: 3
+replicaCount: 2
 
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/backend-api
