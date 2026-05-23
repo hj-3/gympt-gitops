@@ -87,3 +87,6 @@ serviceMonitor:
   enabled: true
   interval: 30s
   path: /metrics
+
+networkPolicy:
+  enabled: false
