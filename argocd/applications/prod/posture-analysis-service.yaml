@@ -18,7 +18,7 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: posture-analysis
+    namespace: gympt-prod
 
   syncPolicy:
     automated:

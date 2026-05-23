@@ -21,7 +21,7 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: report-service
+    namespace: gympt-prod
 
   syncPolicy:
     automated:

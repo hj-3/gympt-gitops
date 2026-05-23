@@ -27,7 +27,7 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: workers
+    namespace: gympt-prod
 
   syncPolicy:
     automated:
