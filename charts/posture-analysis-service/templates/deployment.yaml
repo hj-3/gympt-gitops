@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "backend-api.fullname" . }}
+  name: {{ include "posture-analysis-service.fullname" . }}
   labels:
-    {{- include "backend-api.labels" . | nindent 4 }}
+    {{- include "posture-analysis-service.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "backend-api.selectorLabels" . | nindent 6 }}
+      {{- include "posture-analysis-service.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -19,13 +19,13 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "backend-api.selectorLabels" . | nindent 8 }}
+        {{- include "posture-analysis-service.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "backend-api.serviceAccountName" . }}
+      serviceAccountName: {{ include "posture-analysis-service.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -56,9 +56,9 @@ spec:
           {{- toYaml .Values.env | nindent 10 }}
         envFrom:
           - configMapRef:
-              name: {{ include "backend-api.fullname" . }}-config
+              name: {{ include "posture-analysis-service.fullname" . }}-config
           - secretRef:
-              name: {{ include "backend-api.fullname" . }}-secrets
+              name: {{ include "posture-analysis-service.fullname" . }}-secrets
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -2,9 +2,9 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ include "backend-api.fullname" . }}
+  name: {{ include "posture-analysis-service.fullname" . }}
   labels:
-    {{- include "backend-api.labels" . | nindent 4 }}
+    {{- include "posture-analysis-service.labels" . | nindent 4 }}
 spec:
   {{- if .Values.podDisruptionBudget.minAvailable }}
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
@@ -14,5 +14,5 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "backend-api.selectorLabels" . | nindent 6 }}
+      {{- include "posture-analysis-service.selectorLabels" . | nindent 6 }}
 {{- end }}
