@@ -12,9 +12,11 @@ spec:
     helm:
       parameters:
         - name: settings.clusterName
-          value: gympt-dev-eks
+          value: gympt-prod-eks
         - name: serviceAccount.annotations.eks\.amazonaws\.com/role-arn
-          value: arn:aws:iam::123456789012:role/karpenter-controller-role
+          value: arn:aws:iam::337112169365:role/gympt-prod-karpenter-controller
+        - name: settings.clusterEndpoint
+          value: https://$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
   destination:
     server: https://kubernetes.default.svc
     namespace: karpenter

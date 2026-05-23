@@ -1,0 +1,82 @@
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+  namespace: karpenter
+spec:
+  # Requirements for node selection
+  requirements:
+    - key: karpenter.sh/capacity-type
+      operator: In
+      values: ["on-demand"]
+    - key: kubernetes.io/arch
+      operator: In
+      values: ["amd64"]
+    - key: node.kubernetes.io/instance-type
+      operator: In
+      values:
+        - t3.medium
+        - t3.large
+        - t3.xlarge
+        - m5.large
+        - m5.xlarge
+
+  # Limits for total resources
+  limits:
+    resources:
+      cpu: "100"
+      memory: 200Gi
+
+  # Provider-specific configuration
+  providerRef:
+    name: default
+
+  # TTL for nodes
+  ttlSecondsAfterEmpty: 300
+  ttlSecondsUntilExpired: 604800 # 7 days
+
+  # Consolidation
+  consolidation:
+    enabled: true
+
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+  namespace: karpenter
+spec:
+  subnetSelector:
+    karpenter.sh/discovery: gympt-prod-eks
+  securityGroupSelector:
+    karpenter.sh/discovery: gympt-prod-eks
+  instanceProfile: gympt-prod-karpenter-node-profile
+
+  # EBS volumes
+  blockDeviceMappings:
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 50Gi
+        volumeType: gp3
+        encrypted: true
+        deleteOnTermination: true
+
+  # Metadata options
+  metadataOptions:
+    httpEndpoint: enabled
+    httpProtocolIPv6: disabled
+    httpPutResponseHopLimit: 2
+    httpTokens: required
+
+  # Tags
+  tags:
+    Name: gympt-prod-karpenter-node
+    Environment: prod
+    ManagedBy: karpenter
+    Project: gympt
+
+  # User data
+  userData: |
+    #!/bin/bash
+    set -ex
+    /etc/eks/bootstrap.sh gympt-prod-eks
