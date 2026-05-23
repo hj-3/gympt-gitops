@@ -58,7 +58,7 @@ env:
 configMap:
   data:
     LOG_LEVEL: "INFO"
-    CORS_ORIGINS: "https://gympt.com,https://www.gympt.com"
+    CORS_ORIGINS: "https://g2mpt.com,https://www.g2mpt.com"
     AGENT_SERVICE_URL: "http://agent-service:8001"
     POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service:8002"
     REPORT_SERVICE_URL: "http://report-service:8003"
