@@ -3,12 +3,12 @@
 replicaCount: 2
 
 image:
-  repository: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/gympt/backend-api
+  repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-dev/backend-api
   tag: "dev-latest"
 
 serviceAccount:
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/gympt-dev-backend-api-role
+    eks.amazonaws.com/role-arn: arn:aws:iam::337112169365:role/gympt-dev-backend-api-pod-role
 
 ingress:
   enabled: true
@@ -17,18 +17,18 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:123456789012:certificate/dev-cert
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:337112169365:certificate/dev-cert
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
   hosts:
-    - host: api-dev.gympt.com
+    - host: api-dev.g2mpt.com
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: backend-api-tls
       hosts:
-        - api-dev.gympt.com
+        - api-dev.g2mpt.com
 
 resources:
   limits:
@@ -58,7 +58,7 @@ env:
 configMap:
   data:
     LOG_LEVEL: "DEBUG"
-    CORS_ORIGINS: "https://dev.gympt.com"
+    CORS_ORIGINS: "https://dev.g2mpt.com"
     AGENT_SERVICE_URL: "http://agent-service:8001"
     POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service:8002"
     REPORT_SERVICE_URL: "http://report-service:8003"
