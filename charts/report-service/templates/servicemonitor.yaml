@@ -2,16 +2,16 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "posture-analysis-service.fullname" . }}
+  name: {{ include "report-service.fullname" . }}
   labels:
-    {{- include "posture-analysis-service.labels" . | nindent 4 }}
+    {{- include "report-service.labels" . | nindent 4 }}
     {{- with .Values.serviceMonitor.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
   selector:
     matchLabels:
-      {{- include "posture-analysis-service.selectorLabels" . | nindent 6 }}
+      {{- include "report-service.selectorLabels" . | nindent 6 }}
   endpoints:
     - port: http
       path: {{ .Values.serviceMonitor.path | default "/actuator/prometheus" }}

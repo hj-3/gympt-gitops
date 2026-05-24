@@ -2,9 +2,9 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ include "posture-analysis-service.fullname" . }}
+  name: {{ include "kvs-consumer-service.fullname" . }}
   labels:
-    {{- include "posture-analysis-service.labels" . | nindent 4 }}
+    {{- include "kvs-consumer-service.labels" . | nindent 4 }}
 spec:
   {{- if .Values.podDisruptionBudget.minAvailable }}
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
@@ -14,5 +14,5 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "posture-analysis-service.selectorLabels" . | nindent 6 }}
+      {{- include "kvs-consumer-service.selectorLabels" . | nindent 6 }}
 {{- end }}

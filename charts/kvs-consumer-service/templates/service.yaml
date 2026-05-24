@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "posture-analysis-service.fullname" . }}
+  name: {{ include "kvs-consumer-service.fullname" . }}
   labels:
-    {{- include "posture-analysis-service.labels" . | nindent 4 }}
+    {{- include "kvs-consumer-service.labels" . | nindent 4 }}
   {{- with .Values.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -16,4 +16,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "posture-analysis-service.selectorLabels" . | nindent 4 }}
+    {{- include "kvs-consumer-service.selectorLabels" . | nindent 4 }}
