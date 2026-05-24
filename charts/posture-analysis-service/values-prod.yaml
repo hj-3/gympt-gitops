@@ -20,25 +20,16 @@ service:
 
 resources:
   limits:
-    cpu: 4000m
-    memory: 8Gi
-    nvidia.com/gpu: 1  # Request 1 GPU
-  requests:
     cpu: 2000m
     memory: 4Gi
-    nvidia.com/gpu: 1
+  requests:
+    cpu: 1000m
+    memory: 2Gi
 
-# GPU node selector
-nodeSelector:
-  gpu: "true"
-  node.kubernetes.io/instance-type: "g4dn.xlarge"
+# Use general node pool (no GPU required for CPU-only inference)
+nodeSelector: {}
 
-# GPU node tolerations
-tolerations:
-  - key: nvidia.com/gpu
-    operator: Equal
-    value: "true"
-    effect: NoSchedule
+tolerations: []
 
 affinity:
   # Prefer spreading across zones
