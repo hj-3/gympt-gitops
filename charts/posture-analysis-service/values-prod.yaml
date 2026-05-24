@@ -44,15 +44,6 @@ affinity:
                 values:
                   - posture-analysis-service
           topologyKey: topology.kubernetes.io/zone
-  # Require GPU nodes
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: gpu
-              operator: In
-              values:
-                - "true"
 
 env:
   - name: ENV
