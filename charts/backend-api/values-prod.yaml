@@ -86,6 +86,8 @@ configMap:
     SQS_REPORT_GENERATION_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-report-generation"
     # EventBridge
     EVENTBRIDGE_BUS_NAME: "gympt-prod-event-bus"
+    # Cognito configuration
+    COGNITO_ISSUER_URI: "https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_RuK8MTAAh"
 
 externalSecrets:
   enabled: false  # Disabled - ClusterSecretStore not configured yet
