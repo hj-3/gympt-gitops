@@ -28,26 +28,34 @@ autoscaling:
 
 # Production environment variables
 env:
+  - name: APP_ENV
+    value: "prod"
   - name: LOG_LEVEL
     value: "INFO"
   - name: LOG_FORMAT
     value: "json"
-  - name: WORKER_CONCURRENCY
-    value: "8"
-  - name: WORKER_MAX_TASKS_PER_CHILD
-    value: "1000"
   - name: AWS_REGION
     value: "ap-northeast-2"
   - name: ENVIRONMENT
     value: "production"
-  - name: SQS_QUEUE_URL
-    value: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-report-generation"
-  - name: SQS_MAX_MESSAGES
-    value: "10"
-  - name: SQS_WAIT_TIME_SECONDS
-    value: "20"
-  - name: METRICS_PORT
-    value: "8000"
+  # Bedrock Configuration
+  - name: ENABLE_BEDROCK_MOCK
+    value: "false"
+  - name: BEDROCK_REGION
+    value: "us-west-2"
+  - name: BEDROCK_MODEL_ID
+    value: "anthropic.claude-3-5-sonnet-20241022-v2:0"
+  # Redis Configuration
+  - name: REDIS_HOST
+    value: "master.gympt-prod-redis.8yu9pt.apn2.cache.amazonaws.com"
+  - name: REDIS_PORT
+    value: "6379"
+  # DynamoDB Configuration
+  - name: DYNAMODB_AGENT_INTERACTIONS_TABLE
+    value: "gympt-prod-agent-interactions"
+  # Backend API
+  - name: BACKEND_API_BASE_URL
+    value: "http://backend-api.gympt-prod.svc.cluster.local:8080"
 
 # Pod labels
 podLabels:
