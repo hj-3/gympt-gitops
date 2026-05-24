@@ -8,7 +8,7 @@ image:
 
 serviceAccount:
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/gympt-prod-backend-api-role
+    eks.amazonaws.com/role-arn: arn:aws:iam::337112169365:role/gympt-prod-backend-api-pod-role
 
 ingress:
   enabled: true

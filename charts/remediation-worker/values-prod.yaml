@@ -7,7 +7,7 @@ image:
 
 serviceAccount:
   annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/gympt-prod-generic-worker"
+    eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-remediation-worker-pod-role"
 
 # Higher resources for production
 resources:
@@ -41,7 +41,7 @@ env:
   - name: ENVIRONMENT
     value: "production"
   - name: SQS_QUEUE_URL
-    value: "https://sqs.ap-northeast-2.amazonaws.com/ACCOUNT_ID/gympt-prod-report-generation"
+    value: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-report-generation"
   - name: SQS_MAX_MESSAGES
     value: "10"
   - name: SQS_WAIT_TIME_SECONDS

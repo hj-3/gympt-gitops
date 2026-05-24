@@ -9,7 +9,8 @@ image:
 
 serviceAccount:
   create: true
-  annotations: {}
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-posture-analysis-service-pod-role"
   name: ""
 
 service:
