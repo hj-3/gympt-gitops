@@ -1,16 +1,16 @@
-# Production values for report-service
+# Production values for kvs-consumer-service
 
 replicaCount: 2
 
 image:
-  repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/report-service
+  repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/kvs-consumer-service
   tag: "latest"
   pullPolicy: Always
 
 serviceAccount:
   create: true
   annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-report-service-pod-role"
+    eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-kvs-consumer-pod-role"
   name: ""
 
 service:
@@ -20,19 +20,21 @@ service:
 
 resources:
   limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
     cpu: 1000m
     memory: 2Gi
-  requests:
-    cpu: 500m
-    memory: 1Gi
 
 env:
   - name: ENV
     value: "prod"
   - name: AWS_REGION
     value: "ap-northeast-2"
-  - name: S3_BUCKET
-    value: "gympt-prod-reports"
+  - name: KVS_CHANNEL_PREFIX
+    value: "prod-gympt"
+  - name: POSTURE_ANALYSIS_URL
+    value: "http://posture-analysis-service:8002/api/v1"
 
 autoscaling:
   enabled: true
