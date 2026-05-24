@@ -20,18 +20,35 @@ service:
 
 resources:
   limits:
+    cpu: 4000m
+    memory: 8Gi
+    nvidia.com/gpu: 1
+  requests:
     cpu: 2000m
     memory: 4Gi
-  requests:
-    cpu: 1000m
-    memory: 2Gi
+    nvidia.com/gpu: 1
 
-# Use general node pool (no GPU required for CPU-only inference)
-nodeSelector: {}
+# GPU node selector
+nodeSelector:
+  gpu: "true"
 
-tolerations: []
+# GPU node tolerations
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Equal
+    value: "true"
+    effect: NoSchedule
 
 affinity:
+  # Require GPU nodes
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: gpu
+              operator: In
+              values:
+                - "true"
   # Prefer spreading across zones
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
