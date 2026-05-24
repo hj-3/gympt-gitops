@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "posture-analysis-service.name" -}}
+{{- define "kvs-consumer-service.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "posture-analysis-service.fullname" -}}
+{{- define "kvs-consumer-service.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,16 +24,16 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "posture-analysis-service.chart" -}}
+{{- define "kvs-consumer-service.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "posture-analysis-service.labels" -}}
-helm.sh/chart: {{ include "posture-analysis-service.chart" . }}
-{{ include "posture-analysis-service.selectorLabels" . }}
+{{- define "kvs-consumer-service.labels" -}}
+helm.sh/chart: {{ include "kvs-consumer-service.chart" . }}
+{{ include "kvs-consumer-service.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -43,17 +43,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "posture-analysis-service.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "posture-analysis-service.name" . }}
+{{- define "kvs-consumer-service.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "kvs-consumer-service.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "posture-analysis-service.serviceAccountName" -}}
+{{- define "kvs-consumer-service.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "posture-analysis-service.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "kvs-consumer-service.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
