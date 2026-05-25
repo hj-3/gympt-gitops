@@ -45,6 +45,10 @@ env:
     value: "us-west-2"
   - name: BEDROCK_MODEL_ID
     value: "anthropic.claude-3-5-sonnet-20241022-v2:0"
+  - name: BEDROCK_AGENT_ID
+    value: "WPQ0RESSZS"
+  - name: BEDROCK_AGENT_ALIAS_ID
+    value: "E5LE29XZS1"
   # Redis Configuration
   - name: REDIS_HOST
     value: "master.gympt-prod-redis.8yu9pt.apn2.cache.amazonaws.com"
