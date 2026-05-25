@@ -4,7 +4,7 @@ replicaCount: 2
 
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/backend-api
-  tag: "61a326cc7"  # Redis SSL enabled for ElastiCache TLS
+  tag: "63ca7d5d9"  # Redis SSL enabled for ElastiCache TLS
 
 serviceAccount:
   annotations:
