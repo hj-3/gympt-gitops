@@ -59,7 +59,7 @@ env:
     value: "gympt-prod-agent-interactions"
   # Backend API
   - name: BACKEND_API_BASE_URL
-    value: "http://backend-api.gympt-prod.svc.cluster.local:8080"
+    value: "http://backend-api-prod.gympt-prod.svc.cluster.local:8080"
   # SQS Configuration
   - name: SQS_AGENT_TASK_QUEUE_URL
     value: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-agent-task-queue"
