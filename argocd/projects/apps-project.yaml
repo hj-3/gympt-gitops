@@ -9,7 +9,7 @@ spec:
   description: GymPT application services
 
   sourceRepos:
-    - 'https://github.com/gympt/gympt-gitops.git'
+    - 'https://github.com/hj-3/gympt-gitops.git'
 
   destinations:
     - namespace: 'gympt-*'

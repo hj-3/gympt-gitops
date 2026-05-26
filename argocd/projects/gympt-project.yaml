@@ -10,7 +10,7 @@ spec:
 
   # Source repositories
   sourceRepos:
-    - 'https://github.com/your-org/gympt-gitops.git'
+    - 'https://github.com/hj-3/gympt-gitops.git'
     - 'https://charts.bitnami.com/bitnami'
     - 'https://prometheus-community.github.io/helm-charts'
     - 'https://grafana.github.io/helm-charts'

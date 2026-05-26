@@ -9,7 +9,7 @@ spec:
   project: gympt
 
   source:
-    repoURL: https://github.com/your-org/gympt-gitops.git
+    repoURL: https://github.com/hj-3/gympt-gitops.git
     targetRevision: main
     path: argocd/applications/dev
 
