@@ -34,33 +34,41 @@ jobs:
           tar xf kubeconform-linux-amd64.tar.gz
           sudo mv kubeconform /usr/local/bin
 
-      - name: Render Helm templates (dev)
+      - name: Download CRD schemas
         run: |
-          mkdir -p rendered/${{ matrix.chart }}/dev
-          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
-            -f charts/${{ matrix.chart }}/values-dev.yaml \
-            --output-dir rendered/${{ matrix.chart }}/dev
+          mkdir -p schemas
+          wget -O schemas/ExternalSecret.json \
+            https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/external-secrets.io/externalsecret_v1.json
+          wget -O schemas/ServiceMonitor.json \
+            https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/servicemonitor_v1.json
 
-      - name: Validate dev manifests
+      - name: Render Helm templates
+        run: |
+          shopt -s nullglob
+          values_files=(charts/${{ matrix.chart }}/values*.yaml)
+          if [ ${#values_files[@]} -eq 0 ]; then
+            echo "::error::No values files found for ${{ matrix.chart }}"
+            exit 1
+          fi
+
+          for values_file in "${values_files[@]}"; do
+            values_name="$(basename "${values_file}" .yaml)"
+            output_dir="rendered/${{ matrix.chart }}/${values_name}"
+            mkdir -p "${output_dir}"
+            echo "Rendering ${{ matrix.chart }} with ${values_file}"
+            helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
+              -f "${values_file}" \
+              --output-dir "${output_dir}"
+          done
+
+      - name: Validate rendered manifests
         run: |
           kubeconform -summary -output json \
             -kubernetes-version 1.35.0 \
             -strict \
-            rendered/${{ matrix.chart }}/dev
-
-      - name: Render Helm templates (prod)
-        run: |
-          mkdir -p rendered/${{ matrix.chart }}/prod
-          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
-            -f charts/${{ matrix.chart }}/values-prod.yaml \
-            --output-dir rendered/${{ matrix.chart }}/prod
-
-      - name: Validate prod manifests
-        run: |
-          kubeconform -summary -output json \
-            -kubernetes-version 1.35.0 \
-            -strict \
-            rendered/${{ matrix.chart }}/prod
+            -schema-location default \
+            -schema-location 'schemas/{{ .ResourceKind }}.json' \
+            rendered/${{ matrix.chart }}
 
   validate-argocd:
     name: Validate Argo CD Applications
@@ -75,11 +83,13 @@ jobs:
           tar xf kubeconform-linux-amd64.tar.gz
           sudo mv kubeconform /usr/local/bin
 
-      - name: Download Argo CD CRD schema
+      - name: Download Argo CD schemas
         run: |
           mkdir -p schemas
-          wget -O schemas/application-crd.json \
-            https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/crds/application-crd.yaml
+          wget -O schemas/Application.json \
+            https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argoproj.io/application_v1alpha1.json
+          wget -O schemas/AppProject.json \
+            https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argoproj.io/appproject_v1alpha1.json
 
       - name: Validate Argo CD Applications
         run: |

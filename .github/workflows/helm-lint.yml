@@ -36,17 +36,21 @@ jobs:
         run: |
           helm lint charts/${{ matrix.chart }}
 
-      - name: Helm Template (dev)
+      - name: Helm Template values files
         run: |
-          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
-            -f charts/${{ matrix.chart }}/values-dev.yaml \
-            --debug
+          shopt -s nullglob
+          values_files=(charts/${{ matrix.chart }}/values*.yaml)
+          if [ ${#values_files[@]} -eq 0 ]; then
+            echo "::error::No values files found for ${{ matrix.chart }}"
+            exit 1
+          fi
 
-      - name: Helm Template (prod)
-        run: |
-          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
-            -f charts/${{ matrix.chart }}/values-prod.yaml \
-            --debug
+          for values_file in "${values_files[@]}"; do
+            echo "Rendering ${{ matrix.chart }} with ${values_file}"
+            helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
+              -f "${values_file}" \
+              --debug
+          done
 
       - name: Check for required templates
         run: |
@@ -64,12 +68,10 @@ jobs:
 
       - name: Validate values files
         run: |
-          if [ ! -f "charts/${{ matrix.chart }}/values-dev.yaml" ]; then
-            echo "::error::Missing values-dev.yaml"
-            exit 1
-          fi
-          if [ ! -f "charts/${{ matrix.chart }}/values-prod.yaml" ]; then
-            echo "::error::Missing values-prod.yaml"
+          shopt -s nullglob
+          values_files=(charts/${{ matrix.chart }}/values*.yaml)
+          if [ ${#values_files[@]} -eq 0 ]; then
+            echo "::error::No values files found"
             exit 1
           fi
 
@@ -118,19 +120,19 @@ jobs:
           script: |
             const lintStatus = '${{ needs.lint.result }}';
             const testStatus = '${{ needs.test.result }}';
-            
+
             const statusIcon = (status) => {
-              return status === 'success' ? '✅' : status === 'failure' ? '❌' : '⏭️';
+              return status === 'success' ? 'PASS' : status === 'failure' ? 'FAIL' : 'SKIP';
             };
-            
+
             const output = `## Helm Lint Results
-            
+
             - Helm Lint: ${statusIcon(lintStatus)} \`${lintStatus}\`
             - Chart Testing: ${statusIcon(testStatus)} \`${testStatus}\`
-            
-            ${lintStatus === 'success' && testStatus === 'success' ? '**All checks passed!** 🎉' : '**Some checks failed.** Please review the logs.'}
+
+            ${lintStatus === 'success' && testStatus === 'success' ? '**All checks passed!**' : '**Some checks failed.** Please review the logs.'}
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

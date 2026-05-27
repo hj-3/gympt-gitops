@@ -20,4 +20,10 @@ data:
 
     [metrics]
     enabled = true
-    port = {{ .Values.env | filter "name=METRICS_PORT" | first | .value | default "8000" }}
+    {{- $metricsPort := "8000" }}
+    {{- range .Values.env }}
+    {{- if eq .name "METRICS_PORT" }}
+    {{- $metricsPort = .value }}
+    {{- end }}
+    {{- end }}
+    port = {{ $metricsPort }}
