@@ -190,6 +190,42 @@ queue backlog: 환경별 threshold 이하
 
 ## Alertmanager 라우팅 정책
 
+### 알림 테스트 절차
+
+Alertmanager 알림 경로는 다음 순서로 검증한다.
+
+```text
+PrometheusRule
+-> Alertmanager route
+-> Slack channel
+-> Grafana dashboard 확인
+```
+
+테스트용 룰은 다음 파일에서 관리한다.
+
+```text
+platform/monitoring/rules/prometheusrule-alert-test.yaml
+```
+
+`AlertmanagerTestAlwaysFiring` 알림이 Slack에 수신되면 알림 경로가 정상이다.
+테스트 완료 후에는 해당 룰을 삭제하거나 Argo CD sync 대상에서 제외한다.
+
+Slack webhook URL은 운영 Secret으로 관리하고, Git에는 실제 URL을 커밋하지 않는다.
+
+Alertmanager는 다음 Kubernetes Secret을 파일로 mount하여 Slack webhook URL을 읽는다.
+
+```bash
+kubectl create secret generic alertmanager-slack-webhook \
+  -n monitoring \
+  --from-literal=url='<SLACK_INCOMING_WEBHOOK_URL>'
+```
+
+Alertmanager 설정에서는 직접 URL 대신 다음 경로를 사용한다.
+
+```yaml
+api_url_file: /etc/alertmanager/secrets/alertmanager-slack-webhook/url
+```
+
 권장 라우팅:
 
 ```text

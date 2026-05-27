@@ -1,0 +1,62 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: infrastructure-rules
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+  - name: sqs.rules
+    interval: 30s
+    rules:
+    - alert: SQSQueueBacklog
+      expr: |
+        aws_sqs_approximate_number_of_messages_visible > 1000
+      for: 10m
+      labels:
+        severity: warning
+        component: sqs
+      annotations:
+        summary: "SQS queue has high backlog"
+        description: "Queue {{ $labels.queue_name }} has {{ $value }} messages"
+        runbook_url: "https://github.com/hj-3/gympt-gitops/blob/main/docs/MONITORING_STRATEGY.md"
+
+    - alert: SQSMessageAge
+      expr: |
+        aws_sqs_approximate_age_of_oldest_message > 1800
+      for: 5m
+      labels:
+        severity: critical
+        component: sqs
+      annotations:
+        summary: "SQS queue has old messages"
+        description: "Oldest message in {{ $labels.queue_name }} is {{ $value }}s old"
+        runbook_url: "https://github.com/hj-3/gympt-gitops/blob/main/docs/MONITORING_STRATEGY.md"
+
+    - alert: SQSDLQMessages
+      expr: |
+        aws_sqs_approximate_number_of_messages_visible{queue_name=~".*-dlq"} > 10
+      for: 5m
+      labels:
+        severity: critical
+        component: sqs
+      annotations:
+        summary: "Dead letter queue has messages"
+        description: "DLQ {{ $labels.queue_name }} has {{ $value }} messages"
+        runbook_url: "https://github.com/hj-3/gympt-gitops/blob/main/docs/MONITORING_STRATEGY.md"
+
+  - name: kubernetes.rules
+    interval: 30s
+    rules:
+    - alert: PodRestartFrequent
+      expr: |
+        increase(kube_pod_container_status_restarts_total{namespace=~"backend-api|agent-service|posture-analysis|workers"}[15m]) > 2
+      for: 5m
+      labels:
+        severity: warning
+        component: kubernetes
+      annotations:
+        summary: "Pod restarted frequently"
+        description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} restarted {{ $value }} times in 15 minutes"
+        runbook_url: "https://github.com/hj-3/gympt-gitops/blob/main/docs/MONITORING_STRATEGY.md"

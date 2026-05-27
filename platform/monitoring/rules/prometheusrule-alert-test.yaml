@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: alertmanager-test-rules
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: alertmanager-test.rules
+      interval: 30s
+      rules:
+        - alert: AlertmanagerTestAlwaysFiring
+          expr: vector(1)
+          for: 1m
+          labels:
+            severity: warning
+            component: monitoring
+          annotations:
+            summary: "Alertmanager notification test"
+            description: "This test alert confirms PrometheusRule -> Alertmanager -> Slack routing."
+            runbook_url: "https://github.com/hj-3/gympt-gitops/blob/main/docs/MONITORING_STRATEGY.md"
