@@ -1,0 +1,92 @@
+# Development values for posture-analysis-service
+
+replicaCount: 1
+
+image:
+  repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-dev/posture-analysis-service
+  tag: "dev-latest"
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-dev-posture-analysis-service-pod-role"
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 8002
+  targetPort: 8002
+
+podAnnotations: {}
+
+imagePullSecrets: []
+
+podSecurityContext: {}
+
+securityContext: {}
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+startupProbe: {}
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  - name: ENV
+    value: "dev"
+  - name: ENABLE_GPU
+    value: "false"
+  - name: ENABLE_KVS_MOCK
+    value: "true"
+  - name: AWS_REGION
+    value: "ap-northeast-2"
+  - name: GPU_MEMORY_FRACTION
+    value: "0.5"
+  - name: LOG_LEVEL
+    value: "DEBUG"
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 70
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics
+
+networkPolicy:
+  enabled: false
+
+externalSecrets:
+  enabled: false
