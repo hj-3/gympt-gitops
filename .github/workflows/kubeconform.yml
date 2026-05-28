@@ -34,14 +34,6 @@ jobs:
           tar xf kubeconform-linux-amd64.tar.gz
           sudo mv kubeconform /usr/local/bin
 
-      - name: Download CRD schemas
-        run: |
-          mkdir -p schemas
-          wget -O schemas/ExternalSecret.json \
-            https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/external-secrets.io/externalsecret_v1.json
-          wget -O schemas/ServiceMonitor.json \
-            https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/monitoring.coreos.com/servicemonitor_v1.json
-
       - name: Render Helm templates
         run: |
           shopt -s nullglob
@@ -67,7 +59,7 @@ jobs:
             -kubernetes-version 1.35.0 \
             -strict \
             -schema-location default \
-            -schema-location 'schemas/{{ .ResourceKind }}.json' \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
             rendered/${{ matrix.chart }}
 
   validate-argocd:
@@ -83,20 +75,12 @@ jobs:
           tar xf kubeconform-linux-amd64.tar.gz
           sudo mv kubeconform /usr/local/bin
 
-      - name: Download Argo CD schemas
-        run: |
-          mkdir -p schemas
-          wget -O schemas/Application.json \
-            https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argoproj.io/application_v1alpha1.json
-          wget -O schemas/AppProject.json \
-            https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/argoproj.io/appproject_v1alpha1.json
-
       - name: Validate Argo CD Applications
         run: |
           kubeconform -summary \
             -kubernetes-version 1.35.0 \
             -schema-location default \
-            -schema-location 'schemas/{{ .ResourceKind }}.json' \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
             argocd/applications/**/*.yaml \
             argocd/app-of-apps/*.yaml \
             argocd/projects/*.yaml
