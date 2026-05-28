@@ -1,18 +1,23 @@
 # Production values for kvs-consumer-service
+
 replicaCount: 2
+
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/kvs-consumer-service
-  tag: "14-dd161a1"
+  tag: "7-a1b06f1"
   pullPolicy: Always
+
 serviceAccount:
   create: true
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-kvs-consumer-pod-role"
   name: ""
+
 service:
   type: ClusterIP
   port: 8003
   targetPort: 8003
+
 resources:
   limits:
     cpu: 2000m
@@ -20,6 +25,7 @@ resources:
   requests:
     cpu: 1000m
     memory: 2Gi
+
 env:
   - name: ENV
     value: "prod"
@@ -29,17 +35,21 @@ env:
     value: "prod-gympt"
   - name: POSTURE_ANALYSIS_URL
     value: "http://posture-analysis-service:8002/api/v1"
+
 autoscaling:
   enabled: true
   minReplicas: 2
   maxReplicas: 10
   targetCPUUtilizationPercentage: 70
+
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
+
 serviceMonitor:
   enabled: true
   interval: 30s
   path: /metrics
+
 networkPolicy:
   enabled: false
