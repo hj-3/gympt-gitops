@@ -1,23 +1,18 @@
 # Production values for report-service
-
 replicaCount: 2
-
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/report-service
-  tag: "8-f84a50b"
+  tag: "15-dd161a1"
   pullPolicy: Always
-
 serviceAccount:
   create: true
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-report-service-pod-role"
   name: ""
-
 service:
   type: ClusterIP
   port: 8003
   targetPort: 8003
-
 resources:
   limits:
     cpu: 1000m
@@ -25,7 +20,6 @@ resources:
   requests:
     cpu: 500m
     memory: 1Gi
-
 env:
   - name: ENV
     value: "prod"
@@ -33,21 +27,17 @@ env:
     value: "ap-northeast-2"
   - name: S3_BUCKET
     value: "gympt-prod-reports"
-
 autoscaling:
   enabled: true
   minReplicas: 2
   maxReplicas: 10
   targetCPUUtilizationPercentage: 70
-
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
-
 serviceMonitor:
   enabled: true
   interval: 30s
   path: /metrics
-
 networkPolicy:
   enabled: false
