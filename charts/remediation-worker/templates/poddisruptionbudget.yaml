@@ -2,10 +2,10 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ include "generic-worker.fullname" . }}
+  name: {{ include "remediation-worker.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "generic-worker.labels" . | nindent 4 }}
+    {{- include "remediation-worker.labels" . | nindent 4 }}
 spec:
   {{- if .Values.podDisruptionBudget.minAvailable }}
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
@@ -15,5 +15,5 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "generic-worker.selectorLabels" . | nindent 6 }}
+      {{- include "remediation-worker.selectorLabels" . | nindent 6 }}
 {{- end }}

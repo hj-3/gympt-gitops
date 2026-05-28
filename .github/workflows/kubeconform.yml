@@ -1,6 +1,7 @@
 name: Kubeconform Validation
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
     paths:
@@ -20,6 +21,8 @@ jobs:
           - posture-analysis-service
           - report-service
           - remediation-worker
+          - generic-worker
+          - kvs-consumer-service
 
     steps:
       - name: Checkout code
@@ -27,6 +30,8 @@ jobs:
 
       - name: Setup Helm
         uses: azure/setup-helm@v3
+        with:
+          version: '3.13.0'
 
       - name: Install kubeconform
         run: |
@@ -34,33 +39,33 @@ jobs:
           tar xf kubeconform-linux-amd64.tar.gz
           sudo mv kubeconform /usr/local/bin
 
-      - name: Render Helm templates (dev)
+      - name: Render Helm templates
         run: |
-          mkdir -p rendered/${{ matrix.chart }}/dev
-          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
-            -f charts/${{ matrix.chart }}/values-dev.yaml \
-            --output-dir rendered/${{ matrix.chart }}/dev
+          shopt -s nullglob
+          values_files=(charts/${{ matrix.chart }}/values*.yaml)
+          if [ ${#values_files[@]} -eq 0 ]; then
+            echo "::error::No values files found for ${{ matrix.chart }}"
+            exit 1
+          fi
 
-      - name: Validate dev manifests
+          for values_file in "${values_files[@]}"; do
+            values_name="$(basename "${values_file}" .yaml)"
+            output_dir="rendered/${{ matrix.chart }}/${values_name}"
+            mkdir -p "${output_dir}"
+            echo "Rendering ${{ matrix.chart }} with ${values_file}"
+            helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
+              -f "${values_file}" \
+              --output-dir "${output_dir}"
+          done
+
+      - name: Validate rendered manifests
         run: |
           kubeconform -summary -output json \
             -kubernetes-version 1.35.0 \
             -strict \
-            rendered/${{ matrix.chart }}/dev
-
-      - name: Render Helm templates (prod)
-        run: |
-          mkdir -p rendered/${{ matrix.chart }}/prod
-          helm template ${{ matrix.chart }} charts/${{ matrix.chart }} \
-            -f charts/${{ matrix.chart }}/values-prod.yaml \
-            --output-dir rendered/${{ matrix.chart }}/prod
-
-      - name: Validate prod manifests
-        run: |
-          kubeconform -summary -output json \
-            -kubernetes-version 1.35.0 \
-            -strict \
-            rendered/${{ matrix.chart }}/prod
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            rendered/${{ matrix.chart }}
 
   validate-argocd:
     name: Validate Argo CD Applications
@@ -75,18 +80,12 @@ jobs:
           tar xf kubeconform-linux-amd64.tar.gz
           sudo mv kubeconform /usr/local/bin
 
-      - name: Download Argo CD CRD schema
-        run: |
-          mkdir -p schemas
-          wget -O schemas/application-crd.json \
-            https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/crds/application-crd.yaml
-
       - name: Validate Argo CD Applications
         run: |
           kubeconform -summary \
             -kubernetes-version 1.35.0 \
             -schema-location default \
-            -schema-location 'schemas/{{ .ResourceKind }}.json' \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
             argocd/applications/**/*.yaml \
             argocd/app-of-apps/*.yaml \
             argocd/projects/*.yaml

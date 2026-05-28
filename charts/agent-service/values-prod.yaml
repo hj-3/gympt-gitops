@@ -89,7 +89,7 @@ affinity:
               - key: app.kubernetes.io/name
                 operator: In
                 values:
-                  - generic-worker
+                  - agent-service
           topologyKey: kubernetes.io/hostname
   nodeAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
