@@ -1,13 +1,13 @@
-# Work Log: 2026-05-26 ~ 2026-05-28
+# Work Log
 
-이 문서는 2026-05-26부터 2026-05-28까지 `gympt-gitops`에서 진행한 CI/CD, GitOps, Helm chart, 모니터링 작업 기록이다.
+이 문서는 `gympt-gitops`에서 진행한 CI/CD, GitOps, Helm chart, 모니터링 작업 기록이다. 앞으로 진행하는 작업은 이 문서에 계속 누적한다.
 
 기록 기준:
 
-- `git log --since="2026-05-26 00:00"` 커밋 타임라인
+- git commit 타임라인
 - GitHub Actions 실패 로그 대응 내용
-- Helm/kubeconform 정적 검증 과정
-- Terraform destroy 상태로 인해 PR/merge 테스트를 보류한 운영 판단
+- Helm/kubeconform/actionlint 검증 과정
+- Terraform/Argo CD/PR 관련 운영 판단
 
 ## 2026-05-26
 
@@ -258,6 +258,178 @@ Commit: `08087ba fix: add manual workflow runs and normalize helm charts`
 - `values.yaml`, `values-dev.yaml`, `values-prod.yaml` 누락 없음
 - `agent-service`, `remediation-worker` chart 내부에 `generic-worker` helper 잔여 문자열 없음
 - `git diff --check` 통과
+
+### 로컬 Helm 설치 및 chart 검증
+
+목적:
+
+- GitHub Actions 실행 전 Helm chart와 values 파일이 로컬에서 정상 렌더링되는지 확인했다.
+- 기존 Windows 환경의 `helm.exe`가 깨져 있어 Helm을 재설치했다.
+
+발견한 문제:
+
+- 기존 `helm`은 WinGet 링크로 잡혀 있었다.
+- 링크 파일은 0바이트 symbolic link였고, 실제 Helm 바이너리 대상 파일이 존재하지 않았다.
+
+확인된 깨진 경로:
+
+```text
+C:\Users\MZC-USER\AppData\Local\Microsoft\WinGet\Links\helm.exe
+```
+
+조치:
+
+- Chocolatey로 Helm을 설치했다.
+
+```powershell
+choco install kubernetes-helm -y
+```
+
+설치 후 확인:
+
+```powershell
+where.exe helm
+helm version
+```
+
+결과:
+
+```text
+where.exe helm -> C:\ProgramData\chocolatey\bin\helm.exe
+helm version -> v4.1.4
+```
+
+검증:
+
+- 7개 chart에 대해 `helm lint`를 실행했다.
+- 모든 chart의 `values.yaml`, `values-dev.yaml`, `values-prod.yaml` 조합으로 `helm template`을 실행했다.
+
+검증 대상 chart:
+
+```text
+backend-api
+agent-service
+posture-analysis-service
+report-service
+remediation-worker
+generic-worker
+kvs-consumer-service
+```
+
+결과:
+
+- `helm lint` 전체 통과
+- `helm template` 전체 통과
+- Helm chart values 렌더링 정상 확인
+
+참고:
+
+- GitHub Actions workflow는 Helm `3.13.0`으로 고정되어 있다.
+- 로컬 Chocolatey 설치 버전은 Helm `4.1.4`다.
+- Helm 4에서도 통과했으므로 chart 문법 안정성은 양호하지만, CI와 완전히 동일한 검증은 GitHub Actions에서 Helm 3.13.0으로 다시 확인한다.
+
+### GitHub Actions 사전 점검
+
+목적:
+
+- Terraform apply 전이라 PR/merge 검증은 보류했지만, GitHub Actions에서 터질 수 있는 정적 오류를 로컬에서 최대한 사전 확인했다.
+
+설치한 로컬 검증 도구:
+
+```powershell
+scoop install kubeconform
+scoop install actionlint
+```
+
+검증 1: Helm chart lint
+
+```powershell
+helm lint charts/backend-api
+helm lint charts/agent-service
+helm lint charts/posture-analysis-service
+helm lint charts/report-service
+helm lint charts/remediation-worker
+helm lint charts/generic-worker
+helm lint charts/kvs-consumer-service
+```
+
+결과:
+
+```text
+7개 chart 모두 통과
+```
+
+검증 2: values 파일별 Helm 렌더링
+
+```powershell
+helm template <chart> charts/<chart> -f charts/<chart>/values*.yaml --debug
+```
+
+결과:
+
+```text
+모든 values.yaml / values-dev.yaml / values-prod.yaml 렌더링 통과
+```
+
+검증 3: rendered manifest kubeconform strict 검증
+
+```powershell
+kubeconform -summary -output json `
+  -kubernetes-version 1.35.0 `
+  -strict `
+  -schema-location default `
+  -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' `
+  rendered
+```
+
+결과:
+
+```json
+{
+  "summary": {
+    "valid": 113,
+    "invalid": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}
+```
+
+검증 4: Argo CD Application/AppProject kubeconform 검증
+
+결과:
+
+```text
+28 resources found in 28 files
+Valid: 28
+Invalid: 0
+Errors: 0
+Skipped: 0
+```
+
+주의:
+
+- Windows PowerShell에서는 `argocd/applications/**/*.yaml` glob이 Bash처럼 확장되지 않는다.
+- GitHub Actions는 Ubuntu Bash에서 실행되므로 workflow에서는 glob이 정상 동작할 것으로 판단했다.
+- 로컬 검증은 파일 목록을 직접 수집해서 kubeconform에 넘기는 방식으로 대체했다.
+
+검증 5: GitHub Actions workflow 문법
+
+```powershell
+actionlint .github/workflows/helm-lint.yml .github/workflows/kubeconform.yml
+```
+
+결과:
+
+```text
+actionlint 통과
+```
+
+남은 리스크:
+
+- `helm/chart-testing-action`의 `ct lint` 단계는 로컬에서 직접 재현하지 못했다.
+- `ct lint`는 chart-testing 설정, 변경 chart 감지, chart version bump 정책에 따라 실패할 수 있다.
+- 다만 `helm lint`, `helm template`, `kubeconform`, `actionlint`가 통과했으므로 chart 자체 문제 가능성은 낮다.
 
 ## PR 및 Terraform 관련 운영 판단
 
