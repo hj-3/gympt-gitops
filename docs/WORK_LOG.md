@@ -624,3 +624,14 @@ ct lint --target-branch ${{ github.event.repository.default_branch }} --check-ve
 Validation:
 
 - `actionlint .github/workflows/helm-lint.yml` passed locally.
+
+Follow-up issue:
+
+- `ct lint` later failed while validating Chart.yaml maintainers.
+- The chart maintainers are display names such as `GymPT Team` and `GYMPT Platform Team`.
+- chart-testing tried to validate them as GitHub users/organizations and returned `404 Not Found`.
+
+Follow-up change:
+
+- Added `--validate-maintainers=false` to the chart-testing lint command.
+- Maintainer metadata remains in Chart.yaml, but ct no longer checks it against GitHub accounts.
