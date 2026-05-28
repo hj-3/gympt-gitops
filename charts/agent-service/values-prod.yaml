@@ -1,14 +1,11 @@
 # Production environment overrides
 replicaCount: 3
-
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/agent-service
-  tag: "13-1c4bb75"
-
+  tag: "25-dd161a1"
 serviceAccount:
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-agent-service-pod-role"
-
 # Higher resources for production
 resources:
   limits:
@@ -17,7 +14,6 @@ resources:
   requests:
     cpu: 500m
     memory: 512Mi
-
 # Aggressive autoscaling in production
 autoscaling:
   enabled: true
@@ -25,7 +21,6 @@ autoscaling:
   maxReplicas: 20
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 80
-
 # Production environment variables
 env:
   - name: APP_ENV
@@ -38,8 +33,9 @@ env:
     value: "ap-northeast-2"
   - name: ENVIRONMENT
     value: "production"
-  # Bedrock Configuration
   - name: ENABLE_BEDROCK_MOCK
+    # Bedrock Configuration
+
     value: "false"
   - name: BEDROCK_REGION
     value: "us-west-2"
@@ -49,35 +45,35 @@ env:
     value: "WPQ0RESSZS"
   - name: BEDROCK_AGENT_ALIAS_ID
     value: "E5LE29XZS1"
-  # Redis Configuration
   - name: REDIS_HOST
+    # Redis Configuration
+
     value: "master.gympt-prod-redis.8yu9pt.apn2.cache.amazonaws.com"
   - name: REDIS_PORT
     value: "6379"
-  # DynamoDB Configuration
   - name: DYNAMODB_AGENT_INTERACTIONS_TABLE
-    value: "gympt-prod-agent-interactions"
-  # Backend API
-  - name: BACKEND_API_BASE_URL
-    value: "http://backend-api-prod.gympt-prod.svc.cluster.local:8080"
-  # SQS Configuration
-  - name: SQS_AGENT_TASK_QUEUE_URL
-    value: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-agent-task-queue"
+    # DynamoDB Configuration
 
+    value: "gympt-prod-agent-interactions"
+  - name: BACKEND_API_BASE_URL
+    # Backend API
+
+    value: "http://backend-api-prod.gympt-prod.svc.cluster.local:8080"
+  - name: SQS_AGENT_TASK_QUEUE_URL
+    # SQS Configuration
+
+    value: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-agent-task-queue"
 # Pod labels
 podLabels:
   environment: production
   app.kubernetes.io/component: worker
   app.kubernetes.io/part-of: gympt
-
 # Pod disruption budget for high availability
 podDisruptionBudget:
   enabled: true
   minAvailable: 2
-
 # Longer termination grace period for graceful shutdown
 terminationGracePeriodSeconds: 60
-
 # Node affinity for production workloads
 affinity:
   podAntiAffinity:
