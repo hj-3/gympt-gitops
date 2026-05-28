@@ -96,7 +96,7 @@ env:
 # Environment variables from secrets
 envFrom:
   - secretRef:
-      name: generic-worker-secrets
+      name: agent-service-secrets
 
 # Liveness probe
 livenessProbe:
@@ -149,7 +149,7 @@ affinity:
               - key: app.kubernetes.io/name
                 operator: In
                 values:
-                  - generic-worker
+                  - agent-service
           topologyKey: kubernetes.io/hostname
 
 # Pod disruption budget
