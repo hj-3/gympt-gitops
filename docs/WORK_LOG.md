@@ -431,6 +431,47 @@ actionlint 통과
 - `ct lint`는 chart-testing 설정, 변경 chart 감지, chart version bump 정책에 따라 실패할 수 있다.
 - 다만 `helm lint`, `helm template`, `kubeconform`, `actionlint`가 통과했으므로 chart 자체 문제 가능성은 낮다.
 
+### Monitoring dashboard sync order 정리
+
+발견한 문제:
+
+- `monitoring-dashboards` Application이 `grafana-dashboards` ConfigMap을 생성한다.
+- `kube-prometheus-stack` Application은 Grafana 설정에서 같은 `grafana-dashboards` ConfigMap을 참조한다.
+- Terraform apply 이후 Argo CD sync 시 두 Application 사이 순서 문제나 ConfigMap 참조 타이밍 문제로 충돌처럼 보일 수 있었다.
+
+구조:
+
+```text
+monitoring-dashboards
+-> platform/monitoring/dashboards/grafana-dashboards.yaml
+-> ConfigMap/grafana-dashboards 생성
+
+kube-prometheus-stack
+-> grafana.dashboardsConfigMaps.default = grafana-dashboards
+-> 생성된 ConfigMap을 Grafana dashboard source로 사용
+```
+
+대응:
+
+- `monitoring-dashboards` Application에 sync wave `-1`을 추가했다.
+- `kube-prometheus-stack` Application에 sync wave `0`을 추가했다.
+
+변경 파일:
+
+- `argocd/applications/platform/monitoring-dashboards.yaml`
+- `argocd/applications/platform/monitoring.yaml`
+
+검증:
+
+```text
+kubeconform Argo CD resources
+28 resources found in 28 files
+Valid: 28
+Invalid: 0
+Errors: 0
+Skipped: 0
+```
+
 ## PR 및 Terraform 관련 운영 판단
 
 상황:
