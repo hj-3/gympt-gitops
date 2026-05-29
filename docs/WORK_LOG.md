@@ -2,6 +2,18 @@
 
 ## 2026-05-29
 
+### main 최신 변경 병합 및 prod 기동 점검
+
+- 팀원이 main에 반영한 external-secrets ClusterSecretStore serviceAccount 참조 수정 사항을 dev에 병합했다.
+- `agent-service`, `backend-api`, `remediation-worker` values 충돌을 해결했다.
+- `backend-api` prod ExternalSecret은 활성화 상태를 유지했다.
+- `agent-service`, `remediation-worker`는 Secret 미존재로 컨테이너 생성이 막히지 않도록 `secretRef.optional: true`와 ExternalSecret 기본값을 유지했다.
+- `helm lint`와 `git diff --check`로 병합 결과를 검증했다.
+- 로컬 외부 health check에서 `api.g2mpt.com` DNS는 정상이나 `/actuator/health`는 timeout 상태임을 확인했다.
+- 다음 확인 항목은 `gympt-prod` pod readiness, ingress ADDRESS, ExternalSecret/Secret 생성 상태, ALB controller 이벤트다.
+- Argo CD sync 실패 원인이 클러스터에 설치된 ExternalSecret CRD 버전(`v1alpha1`)과 chart 템플릿(`v1`) 불일치임을 확인했다.
+- 앱 chart의 ExternalSecret apiVersion을 `external-secrets.io/v1alpha1`로 맞췄다.
+
 ### prod 앱 기동 장애 원인 정리 및 GitOps 수정
 
 - `gympt-prod-apps` AppProject destination 제한으로 child Application 생성이 막히던 문제를 확인하고 `argocd` destination 및 `Application` whitelist를 추가했다.
