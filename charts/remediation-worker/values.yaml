@@ -4,7 +4,7 @@ replicaCount: 2
 image:
   repository: ACCOUNT_ID.dkr.ecr.ap-northeast-2.amazonaws.com/gympt/remediation-worker
   pullPolicy: IfNotPresent
-  tag: "57c3aed"  # Overridden by Argo CD with image.tag parameter
+  tag: "57c3aed"
 
 imagePullSecrets: []
 nameOverride: ""

@@ -1,5 +1,14 @@
 # Work Log
 
+## 2026-05-29
+
+### dev 서비스 CI/CD 태그 반영 경로 정리
+
+- app repo의 주요 서비스 CI가 `dev` 브랜치 push에서도 실행되도록 맞췄다.
+- GitOps dev Argo CD 앱에서 `image.tag=dev-latest` Helm parameter override를 제거했다.
+- 이제 CI가 `values-dev.yaml`의 image tag를 갱신하면 Argo CD가 해당 태그를 그대로 렌더링한다.
+- `agent-service` dev values에 dev ECR repository가 누락되어 prod ECR repo를 참조하던 문제를 수정했다.
+
 이 문서는 `gympt-gitops`에서 진행한 CI/CD, GitOps, Helm chart, 모니터링 작업 기록이다. 앞으로 진행하는 작업은 이 문서에 계속 누적한다.
 
 기록 기준:
