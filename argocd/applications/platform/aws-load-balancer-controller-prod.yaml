@@ -24,7 +24,7 @@ spec:
         - name: region
           value: ap-northeast-2
         - name: vpcId
-          value: vpc-065db1d18f52f964e
+          value: vpc-0e7d2db156f48515d
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
