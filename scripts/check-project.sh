@@ -112,7 +112,6 @@ check_exists "charts/report-service/values.yaml" "file" "Report Service values.y
 # Helm Charts - Workers
 echo -e "\n${BLUE}=== Worker Helm Charts ===${NC}"
 check_exists "charts/remediation-worker" "dir" "Remediation worker chart" "important"
-check_exists "charts/generic-worker" "dir" "Generic worker chart" "important"
 
 # Argo CD Applications - Dev
 echo -e "\n${BLUE}=== Argo CD Applications (Dev) ===${NC}"
@@ -121,7 +120,6 @@ check_exists "argocd/applications/dev/agent-service.yaml" "file" "Agent Service 
 check_exists "argocd/applications/dev/posture-analysis-service.yaml" "file" "Posture Analysis dev app" "critical"
 check_exists "argocd/applications/dev/report-service.yaml" "file" "Report Service dev app" "critical"
 check_exists "argocd/applications/dev/remediation-worker.yaml" "file" "Remediation Worker dev app" "important"
-check_exists "argocd/applications/dev/generic-worker.yaml" "file" "Generic Worker dev app" "important"
 check_exists "argocd/applications/dev/monitoring.yaml" "file" "Monitoring dev app" "optional"
 
 # Argo CD Applications - Prod
@@ -236,7 +234,7 @@ fi
 # Recommendations
 echo -e "\n${BLUE}=== Top Recommendations ===${NC}"
 echo -e "1. ${YELLOW}Implement External Secrets Operator${NC} for secret management"
-echo -e "2. ${YELLOW}Create Helm charts for workers${NC} (remediation-worker, generic-worker)"
+echo -e "2. ${YELLOW}Create Helm charts for workers${NC} (remediation-worker)"
 echo -e "3. ${YELLOW}Add NetworkPolicies${NC} to all service templates"
 echo -e "4. ${YELLOW}Implement PodDisruptionBudgets${NC} for all services"
 echo -e "5. ${YELLOW}Add Helm chart testing${NC} in CI/CD"

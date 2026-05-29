@@ -36,7 +36,6 @@ helm lint charts/agent-service
 helm lint charts/posture-analysis-service
 helm lint charts/report-service
 helm lint charts/remediation-worker
-helm lint charts/generic-worker
 ```
 
 values 파일별 렌더링:
@@ -50,7 +49,7 @@ helm template posture-analysis-service charts/posture-analysis-service \
 전체 values 파일 렌더링 패턴:
 
 ```bash
-for chart in backend-api agent-service posture-analysis-service report-service remediation-worker generic-worker; do
+for chart in backend-api agent-service posture-analysis-service report-service remediation-worker; do
   for values_file in charts/$chart/values*.yaml; do
     helm template "$chart" "charts/$chart" -f "$values_file" --debug
   done

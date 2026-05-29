@@ -198,8 +198,6 @@ kubectl apply -f external-secret-posture-analysis.yaml
 # Remediation Worker
 kubectl apply -f external-secret-remediation-worker.yaml
 
-# Generic Worker
-kubectl apply -f external-secret-generic-worker.yaml
 ```
 
 ### Verify ExternalSecrets

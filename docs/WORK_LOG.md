@@ -624,3 +624,47 @@ ct lint --target-branch ${{ github.event.repository.default_branch }} --check-ve
 Validation:
 
 - `actionlint .github/workflows/helm-lint.yml` passed locally.
+
+Follow-up issue:
+
+- `ct lint` later failed while validating Chart.yaml maintainers.
+- The chart maintainers are display names such as `GymPT Team` and `GYMPT Platform Team`.
+- chart-testing tried to validate them as GitHub users/organizations and returned `404 Not Found`.
+
+Follow-up change:
+
+- Added `--validate-maintainers=false` to the chart-testing lint command.
+- Maintainer metadata remains in Chart.yaml, but ct no longer checks it against GitHub accounts.
+
+## 2026-05-29 generic-worker GitOps 제거
+
+배경:
+
+- `generic-worker`는 기존 `report-generator` Lambda와 report-generation 큐 consumer 역할이 겹친다.
+- Lambda 경로는 현재 GitOps/service 작업 범위 밖에서 유지하기로 했으므로, 당장은 Argo CD가 `generic-worker`를 배포하지 않도록 정리한다.
+
+변경:
+
+- dev/prod `generic-worker` Argo CD Application을 제거했다.
+- `charts/generic-worker` Helm chart를 제거했다.
+- Helm lint와 kubeconform workflow matrix에서 `generic-worker`를 제거했다.
+- `generic-worker` ExternalSecret과 NetworkPolicy를 제거했다.
+- `SQSMessageAge` 알림에서 `generic-worker`를 scale up 하던 remediation rule을 제거했다.
+- 문서와 검증 스크립트가 더 이상 `generic-worker`를 기대하지 않도록 정리했다.
+
+검증:
+
+- `git diff --check` 통과
+- 남은 chart에 대해 `helm lint` 통과:
+  - `backend-api`
+  - `agent-service`
+  - `posture-analysis-service`
+  - `report-service`
+  - `remediation-worker`
+  - `kvs-consumer-service`
+- 남은 dev/prod values 파일에 대해 `helm template` 통과
+
+비고:
+
+- Infra에는 아직 `generic-worker` IRSA 관련 참조가 남아 있다.
+- 이번 변경은 GitOps 배포 표면 제거가 목적이므로 Terraform 쪽 참조는 건드리지 않았다.
