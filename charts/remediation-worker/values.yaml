@@ -99,6 +99,16 @@ envFrom:
       name: remediation-worker-secrets
       optional: true
 
+externalSecrets:
+  enabled: false
+  name: remediation-worker-secrets
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: ClusterSecretStore
+  data: []
+  dataFrom: []
+
 # Liveness probe
 livenessProbe:
   httpGet:

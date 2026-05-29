@@ -6,6 +6,16 @@ image:
 serviceAccount:
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-remediation-worker-pod-role"
+externalSecrets:
+  enabled: true
+  name: remediation-worker-secrets
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: ClusterSecretStore
+  dataFrom:
+    - extract:
+        key: gympt/prod/remediation-worker
 # Higher resources for production
 resources:
   limits:

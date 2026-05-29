@@ -2,6 +2,16 @@
 
 ## 2026-05-29
 
+### prod 앱 기동 장애 원인 정리 및 GitOps 수정
+
+- `gympt-prod-apps` AppProject destination 제한으로 child Application 생성이 막히던 문제를 확인하고 `argocd` destination 및 `Application` whitelist를 추가했다.
+- prod 앱 배포 후 `CreateContainerConfigError` 원인이 Secret 미존재임을 확인했다.
+- `agent-service`, `remediation-worker` chart에 prod ExternalSecret 생성을 추가하고 secretRef를 optional로 유지했다.
+- `backend-api` prod ExternalSecret을 활성화해 `backend-api-prod-secrets`가 생성되도록 수정했다.
+- Karpenter controller만 배포되고 NodePool/EC2NodeClass 리소스가 적용되지 않던 문제를 확인하고 `karpenter-resources` Argo CD Application을 추가했다.
+
+## 2026-05-29
+
 ### dev 서비스 CI/CD 태그 반영 경로 정리
 
 - app repo의 주요 서비스 CI가 `dev` 브랜치 push에서도 실행되도록 맞췄다.
