@@ -13,8 +13,6 @@ spec:
       parameters:
         - name: settings.clusterName
           value: gympt-prod-eks
-        - name: settings.interruptionQueue
-          value: gympt-prod-eks
         - name: serviceAccount.annotations.eks\.amazonaws\.com/role-arn
           value: arn:aws:iam::337112169365:role/gympt-prod-karpenter-controller
         - name: settings.clusterEndpoint

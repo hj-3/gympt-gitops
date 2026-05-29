@@ -699,3 +699,26 @@ Follow-up change:
 
 - Infra에는 아직 `generic-worker` IRSA 관련 참조가 남아 있다.
 - 이번 변경은 GitOps 배포 표면 제거가 목적이므로 Terraform 쪽 참조는 건드리지 않았다.
+
+## 2026-05-29 Karpenter 리소스 동기화 수정
+
+배경:
+
+- `karpenter-resources` Application 동기화가 실패했다.
+- 실패 원인은 Karpenter v1 `EC2NodeClass`에 필수 값인 `spec.amiSelectorTerms`가 없었기 때문이다.
+- 그 결과 `default` EC2NodeClass가 생성되지 않았고, `general`/`gpu` NodePool도 `NodeClassReady=False` 상태였다.
+- Karpenter 컨트롤러 로그에는 존재하지 않는 interruption SQS queue(`gympt-prod-eks`) 조회 실패도 반복되고 있었다.
+
+변경:
+
+- `platform/karpenter/provisioner.yaml`
+  - `EC2NodeClass`에 `amiSelectorTerms`를 추가했다.
+  - EKS 1.35 노드 이미지 기준에 맞춰 `amiFamily`를 `AL2023`으로 변경했다.
+- `argocd/applications/platform/karpenter.yaml`
+  - 아직 생성되지 않은 interruption queue 설정을 제거했다.
+
+후속 확인:
+
+- `karpenter-resources` 재동기화 후 `EC2NodeClass/default` 생성 여부 확인
+- `general`/`gpu` NodePool `Ready=True` 전환 여부 확인
+- Pending 상태인 GPU/CPU 워크로드가 NodeClaim 생성을 트리거하는지 확인

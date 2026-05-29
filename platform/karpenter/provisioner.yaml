@@ -3,7 +3,9 @@ kind: EC2NodeClass
 metadata:
   name: default
 spec:
-  amiFamily: AL2
+  amiFamily: AL2023
+  amiSelectorTerms:
+    - alias: al2023@latest
   role: gympt-prod-eks-node-role
   subnetSelectorTerms:
     - tags:
