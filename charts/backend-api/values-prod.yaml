@@ -90,7 +90,7 @@ configMap:
     COGNITO_ISSUER_URI: "https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_RuK8MTAAh"
 
 externalSecrets:
-  enabled: false  # Disabled - ClusterSecretStore not configured yet
+  enabled: true
   refreshInterval: 1h
   secretStoreRef:
     name: aws-secrets-manager

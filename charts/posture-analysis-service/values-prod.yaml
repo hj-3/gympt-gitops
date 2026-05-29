@@ -1,4 +1,4 @@
-# Production values for posture-analysis-service with GPU support
+# Production values for posture-analysis-service
 
 replicaCount: 2
 
@@ -20,36 +20,17 @@ service:
 
 resources:
   limits:
-    cpu: 4000m
-    memory: 8Gi
-    nvidia.com/gpu: 1
+    cpu: 1000m
+    memory: 2Gi
   requests:
-    cpu: 2000m
-    memory: 4Gi
-    nvidia.com/gpu: 1
+    cpu: 250m
+    memory: 512Mi
 
-# GPU node selector
-nodeSelector:
-  gpu: "true"
+nodeSelector: {}
 
-# GPU node tolerations
-tolerations:
-  - key: nvidia.com/gpu
-    operator: Equal
-    value: "true"
-    effect: NoSchedule
+tolerations: []
 
 affinity:
-  # Require GPU nodes
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: gpu
-              operator: In
-              values:
-                - "true"
-  # Prefer spreading across zones
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 100
@@ -66,7 +47,7 @@ env:
   - name: ENV
     value: "prod"
   - name: ENABLE_GPU
-    value: "true"
+    value: "false"
   - name: ENABLE_KVS_MOCK
     value: "false"
   - name: AWS_REGION
@@ -75,7 +56,7 @@ env:
     value: "0.8"
 
 autoscaling:
-  enabled: false  # GPU nodes typically don't autoscale
+  enabled: true
   minReplicas: 2
   maxReplicas: 5
   targetCPUUtilizationPercentage: 70
