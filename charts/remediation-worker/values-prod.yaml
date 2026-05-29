@@ -1,14 +1,11 @@
 # Production environment overrides
 replicaCount: 3
-
 image:
-  tag: "57c3aed"  # Set by CI/CD pipeline
+  tag: "12-fedba01" # Set by CI/CD pipeline
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/remediation-worker
-
 serviceAccount:
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-remediation-worker-pod-role"
-
 # Higher resources for production
 resources:
   limits:
@@ -17,7 +14,6 @@ resources:
   requests:
     cpu: 500m
     memory: 512Mi
-
 # Aggressive autoscaling in production
 autoscaling:
   enabled: true
@@ -25,7 +21,6 @@ autoscaling:
   maxReplicas: 20
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 80
-
 # Production environment variables
 env:
   - name: LOG_LEVEL
@@ -48,21 +43,17 @@ env:
     value: "20"
   - name: METRICS_PORT
     value: "8080"
-
 # Pod labels
 podLabels:
   environment: production
   app.kubernetes.io/component: worker
   app.kubernetes.io/part-of: gympt
-
 # Pod disruption budget for high availability
 podDisruptionBudget:
   enabled: true
   minAvailable: 2
-
 # Longer termination grace period for graceful shutdown
 terminationGracePeriodSeconds: 60
-
 # Node affinity for production workloads
 affinity:
   podAntiAffinity:

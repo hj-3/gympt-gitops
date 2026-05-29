@@ -1,36 +1,48 @@
-# Production values for posture-analysis-service
-
+# Production values for posture-analysis-service with GPU support
 replicaCount: 2
-
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/posture-analysis-service
-  tag: "16-f84a50b"
+  tag: "31-fedba01"
   pullPolicy: IfNotPresent
-
 serviceAccount:
   create: true
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-posture-analysis-service-pod-role"
   name: ""
-
 service:
   type: ClusterIP
   port: 8002
   targetPort: 8002
-
 resources:
   limits:
-    cpu: 1000m
-    memory: 2Gi
+    cpu: 4000m
+    memory: 8Gi
+    nvidia.com/gpu: 1
   requests:
-    cpu: 250m
-    memory: 512Mi
-
-nodeSelector: {}
-
-tolerations: []
-
+    cpu: 2000m
+    memory: 4Gi
+    nvidia.com/gpu: 1
+# GPU node selector
+nodeSelector:
+  gpu: "true"
+# GPU node tolerations
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Equal
+    value: "true"
+    effect: NoSchedule
 affinity:
+  # Require GPU nodes
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: gpu
+              operator: In
+              values:
+                - "true"
+  # Prefer spreading across zones
+
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 100
@@ -42,36 +54,30 @@ affinity:
                 values:
                   - posture-analysis-service
           topologyKey: topology.kubernetes.io/zone
-
 env:
   - name: ENV
     value: "prod"
   - name: ENABLE_GPU
-    value: "false"
+    value: "true"
   - name: ENABLE_KVS_MOCK
     value: "false"
   - name: AWS_REGION
     value: "ap-northeast-2"
   - name: GPU_MEMORY_FRACTION
     value: "0.8"
-
 autoscaling:
-  enabled: true
+  enabled: false # GPU nodes typically don't autoscale
   minReplicas: 2
   maxReplicas: 5
   targetCPUUtilizationPercentage: 70
-
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
-
 serviceMonitor:
   enabled: true
   interval: 30s
   path: /metrics
-
 networkPolicy:
   enabled: false
-
 externalSecrets:
   enabled: false
