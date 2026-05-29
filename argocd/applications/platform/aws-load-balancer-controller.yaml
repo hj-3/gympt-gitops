@@ -3,18 +3,28 @@ kind: Application
 metadata:
   name: aws-load-balancer-controller
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: gympt-platform
   source:
     repoURL: https://aws.github.io/eks-charts
     chart: aws-load-balancer-controller
-    targetRevision: 1.7.1
+    targetRevision: 1.7.2
     helm:
       parameters:
         - name: clusterName
-          value: gympt-dev-eks
+          value: gympt-prod-eks
+        - name: serviceAccount.create
+          value: "true"
+        - name: serviceAccount.name
+          value: aws-load-balancer-controller
         - name: serviceAccount.annotations.eks\.amazonaws\.com/role-arn
-          value: arn:aws:iam::123456789012:role/aws-load-balancer-controller-role
+          value: arn:aws:iam::337112169365:role/gympt-prod-alb-controller
+        - name: region
+          value: ap-northeast-2
+        - name: vpcId
+          value: vpc-0e7d2db156f48515d
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
@@ -22,3 +32,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
