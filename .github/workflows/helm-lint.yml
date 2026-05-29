@@ -25,7 +25,6 @@ jobs:
           - posture-analysis-service
           - report-service
           - remediation-worker
-          - generic-worker
           - kvs-consumer-service
 
     steps:

@@ -214,20 +214,6 @@ rules:
     cooldown: 900
     description: "Scale up workers due to SQS queue backlog"
 
-  - alertName: SQSMessageAge
-    severity: warning
-    action: scale_deployment
-    params:
-      namespace: workers
-      deployment: generic-worker
-      scaleDirection: up
-      targetReplicas: "+1"
-      maxReplicas: 10
-    dryRun: false
-    notifySlack: true
-    cooldown: 600
-    description: "Scale up workers due to old messages in queue"
-
   - alertName: SQSDLQMessages
     severity: critical
     action: notify_only

@@ -385,7 +385,7 @@ This document contains operational runbooks for alerts and automated remediation
 3. Check worker health:
    ```bash
    kubectl get pods -n workers
-   kubectl logs -n workers -l app=generic-worker --tail=50
+   kubectl logs -n workers -l app.kubernetes.io/name=remediation-worker --tail=50
    ```
 
 4. Consider:
