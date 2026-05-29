@@ -2,6 +2,18 @@
 
 ## 2026-05-29
 
+### main 최신 변경 병합 및 prod 기동 점검
+
+- 팀원이 main에 반영한 external-secrets ClusterSecretStore serviceAccount 참조 수정 사항을 dev에 병합했다.
+- `agent-service`, `backend-api`, `remediation-worker` values 충돌을 해결했다.
+- `backend-api` prod ExternalSecret은 활성화 상태를 유지했다.
+- `agent-service`, `remediation-worker`는 Secret 미존재로 컨테이너 생성이 막히지 않도록 `secretRef.optional: true`와 ExternalSecret 기본값을 유지했다.
+- `helm lint`와 `git diff --check`로 병합 결과를 검증했다.
+- 로컬 외부 health check에서 `api.g2mpt.com` DNS는 정상이나 `/actuator/health`는 timeout 상태임을 확인했다.
+- 다음 확인 항목은 `gympt-prod` pod readiness, ingress ADDRESS, ExternalSecret/Secret 생성 상태, ALB controller 이벤트다.
+- Argo CD sync 실패 원인이 클러스터에 설치된 ExternalSecret CRD 버전(`v1alpha1`)과 chart 템플릿(`v1`) 불일치임을 확인했다.
+- 앱 chart의 ExternalSecret apiVersion을 `external-secrets.io/v1alpha1`로 맞췄다.
+
 ### prod 앱 기동 장애 원인 정리 및 GitOps 수정
 
 - `gympt-prod-apps` AppProject destination 제한으로 child Application 생성이 막히던 문제를 확인하고 `argocd` destination 및 `Application` whitelist를 추가했다.
@@ -687,3 +699,26 @@ Follow-up change:
 
 - Infra에는 아직 `generic-worker` IRSA 관련 참조가 남아 있다.
 - 이번 변경은 GitOps 배포 표면 제거가 목적이므로 Terraform 쪽 참조는 건드리지 않았다.
+
+## 2026-05-29 Karpenter 리소스 동기화 수정
+
+배경:
+
+- `karpenter-resources` Application 동기화가 실패했다.
+- 실패 원인은 Karpenter v1 `EC2NodeClass`에 필수 값인 `spec.amiSelectorTerms`가 없었기 때문이다.
+- 그 결과 `default` EC2NodeClass가 생성되지 않았고, `general`/`gpu` NodePool도 `NodeClassReady=False` 상태였다.
+- Karpenter 컨트롤러 로그에는 존재하지 않는 interruption SQS queue(`gympt-prod-eks`) 조회 실패도 반복되고 있었다.
+
+변경:
+
+- `platform/karpenter/provisioner.yaml`
+  - `EC2NodeClass`에 `amiSelectorTerms`를 추가했다.
+  - EKS 1.35 노드 이미지 기준에 맞춰 `amiFamily`를 `AL2023`으로 변경했다.
+- `argocd/applications/platform/karpenter.yaml`
+  - 아직 생성되지 않은 interruption queue 설정을 제거했다.
+
+후속 확인:
+
+- `karpenter-resources` 재동기화 후 `EC2NodeClass/default` 생성 여부 확인
+- `general`/`gpu` NodePool `Ready=True` 전환 여부 확인
+- Pending 상태인 GPU/CPU 워크로드가 NodeClaim 생성을 트리거하는지 확인
