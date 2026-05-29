@@ -742,3 +742,44 @@ Follow-up change:
 - `EC2NodeClass/default`의 `SubnetsReady=True`, `Ready=True` 전환 확인
 - `general`/`gpu` NodePool Ready 상태 확인
 - Pending Pod가 NodeClaim 생성을 트리거하는지 확인
+
+## 2026-05-29 Karpenter selector 및 ExternalSecret v1alpha1 수정
+
+배경:
+
+- Karpenter가 NodeClaim은 생성했지만 EC2 `CreateFleet` 단계에서 실패했다.
+- 실패 원인은 같은 discovery 태그를 가진 과거 VPC의 security group/subnet이 함께 선택되어 서로 다른 VPC 리소스가 조합된 것이다.
+- `agent-service`와 `remediation-worker` ExternalSecret은 클러스터에 설치된 `external-secrets.io/v1alpha1` 스키마에서 `spec.dataFrom[0].key`가 필요하지만 `extract.key` 형태로 렌더링되어 sync가 실패했다.
+
+변경:
+
+- `platform/karpenter/provisioner.yaml`
+  - 현재 prod VPC에 속한 subnet id와 security group id로 selector를 고정했다.
+- `charts/agent-service/values-prod.yaml`
+  - `dataFrom`을 `v1alpha1` 호환 형태인 `key`로 변경했다.
+- `charts/remediation-worker/values-prod.yaml`
+  - `dataFrom`을 `v1alpha1` 호환 형태인 `key`로 변경했다.
+
+후속 확인:
+
+- `karpenter-resources` sync 후 기존 실패 NodeClaim 삭제 및 재생성 확인
+- `agent-service`/`remediation-worker` ExternalSecret sync 성공 여부 확인
+- `backend-api-prod-secrets`의 `SecretSyncedError` 상세 원인 확인
+
+## 2026-05-29 External Secrets IAM path 수정
+
+배경:
+
+- `backend-api-prod-secrets` ExternalSecret은 생성되었지만 `SecretSyncedError` 상태였다.
+- 상세 이벤트에서 `gympt-prod-external-secrets` role이 `gympt/prod/database` Secret에 대해 `secretsmanager:GetSecretValue` 권한이 없다고 확인됐다.
+- 실제 inline policy는 `arn:aws:secretsmanager:ap-northeast-2:*:secret:gympt-prod/*`를 허용하고 있었고, 실제 Secret path는 `gympt/prod/*`라서 매칭되지 않았다.
+
+변경:
+
+- `gympt-infra` IAM 모듈의 External Secrets 기본 policy resource path를 `gympt-prod/*` 형식에서 `gympt/prod/*` 형식으로 변경했다.
+- SSM parameter path도 동일한 네이밍 체계인 `gympt/prod/*`로 맞췄다.
+
+후속 확인:
+
+- Terraform apply 후 `gympt-prod-external-secrets-policy`의 Secrets Manager resource가 `secret:gympt/prod/*`로 갱신되었는지 확인
+- `backend-api-prod-secrets`, `agent-service-secrets`, `remediation-worker-secrets`가 Kubernetes Secret으로 생성되는지 확인

@@ -14,8 +14,7 @@ externalSecrets:
     name: aws-secrets-manager
     kind: ClusterSecretStore
   dataFrom:
-    - extract:
-        key: gympt/prod/remediation-worker
+    - key: gympt/prod/remediation-worker
 # Higher resources for production
 resources:
   limits:

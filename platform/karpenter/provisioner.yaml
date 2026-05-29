@@ -8,11 +8,10 @@ spec:
     - alias: al2023@latest
   role: gympt-prod-eks-node-role
   subnetSelectorTerms:
-    - tags:
-        karpenter.sh/discovery: gympt-prod
+    - id: subnet-052c2c7ea25467e55
+    - id: subnet-0de1a8a75f20b9927
   securityGroupSelectorTerms:
-    - tags:
-        karpenter.sh/discovery: gympt-prod-eks
+    - id: sg-07dd6c7d06fe338a3
   blockDeviceMappings:
     - deviceName: /dev/xvda
       ebs:

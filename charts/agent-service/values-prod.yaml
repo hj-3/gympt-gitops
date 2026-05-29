@@ -14,8 +14,7 @@ externalSecrets:
     name: aws-secrets-manager
     kind: ClusterSecretStore
   dataFrom:
-    - extract:
-        key: gympt/prod/agent-service
+    - key: gympt/prod/agent-service
 # Higher resources for production
 resources:
   limits:
