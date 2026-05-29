@@ -6,7 +6,7 @@ metadata:
 spec:
   project: gympt-platform
   source:
-    repoURL: https://charts.karpenter.sh
+    repoURL: https://karpenter.sh
     chart: karpenter
     targetRevision: v0.33.0
     helm:
