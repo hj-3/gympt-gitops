@@ -9,7 +9,7 @@ spec:
   role: gympt-prod-eks-node-role
   subnetSelectorTerms:
     - tags:
-        karpenter.sh/discovery: gympt-prod-eks
+        karpenter.sh/discovery: gympt-prod
   securityGroupSelectorTerms:
     - tags:
         karpenter.sh/discovery: gympt-prod-eks

@@ -722,3 +722,23 @@ Follow-up change:
 - `karpenter-resources` 재동기화 후 `EC2NodeClass/default` 생성 여부 확인
 - `general`/`gpu` NodePool `Ready=True` 전환 여부 확인
 - Pending 상태인 GPU/CPU 워크로드가 NodeClaim 생성을 트리거하는지 확인
+
+## 2026-05-29 Karpenter subnet selector 수정
+
+배경:
+
+- `EC2NodeClass/default` 생성 후 `AMIsReady`, `SecurityGroupsReady`, `InstanceProfileReady`는 모두 정상으로 확인됐다.
+- 남은 실패 조건은 `SubnetsReady=False`였고, 메시지는 `SubnetSelector did not match any Subnets`였다.
+- Terraform VPC 모듈의 private app subnet 태그는 `karpenter.sh/discovery=gympt-prod`로 설정되어 있었다.
+- GitOps의 EC2NodeClass subnet selector는 `gympt-prod-eks`를 찾고 있어 실제 subnet 태그와 불일치했다.
+
+변경:
+
+- `platform/karpenter/provisioner.yaml`
+  - `subnetSelectorTerms` 값을 실제 private app subnet 태그인 `gympt-prod`로 맞췄다.
+
+후속 확인:
+
+- `EC2NodeClass/default`의 `SubnetsReady=True`, `Ready=True` 전환 확인
+- `general`/`gpu` NodePool Ready 상태 확인
+- Pending Pod가 NodeClaim 생성을 트리거하는지 확인
