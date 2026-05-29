@@ -21,7 +21,7 @@ serviceAccount:
 # Pod annotations
 podAnnotations:
   prometheus.io/scrape: "true"
-  prometheus.io/port: "8000"
+  prometheus.io/port: "8080"
   prometheus.io/path: "/metrics"
 
 # Pod labels
@@ -46,14 +46,14 @@ securityContext:
     drop:
       - ALL
 
-# Service configuration (for metrics endpoint)
+# Service configuration
 service:
   type: ClusterIP
-  port: 8000
-  targetPort: metrics
+  port: 8080
+  targetPort: http
   annotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "8000"
+    prometheus.io/port: "8080"
 
 # Resource limits and requests
 resources:
@@ -91,7 +91,7 @@ env:
   - name: SQS_WAIT_TIME_SECONDS
     value: "20"
   - name: METRICS_PORT
-    value: "8000"
+    value: "8080"
 
 # Environment variables from secrets
 envFrom:
@@ -102,7 +102,7 @@ envFrom:
 livenessProbe:
   httpGet:
     path: /health
-    port: metrics
+    port: http
   initialDelaySeconds: 30
   periodSeconds: 30
   timeoutSeconds: 5
@@ -112,7 +112,7 @@ livenessProbe:
 readinessProbe:
   httpGet:
     path: /ready
-    port: metrics
+    port: http
   initialDelaySeconds: 10
   periodSeconds: 10
   timeoutSeconds: 5

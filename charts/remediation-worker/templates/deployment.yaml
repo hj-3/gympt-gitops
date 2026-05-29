@@ -40,8 +40,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: metrics
-              containerPort: 8000
+            - name: http
+              containerPort: 8080
               protocol: TCP
           env:
             {{- toYaml .Values.env | nindent 12 }}

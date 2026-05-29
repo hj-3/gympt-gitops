@@ -2,6 +2,7 @@
 replicaCount: 1
 
 image:
+  repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-dev/remediation-worker
   tag: "dev-latest"
 
 serviceAccount:
@@ -42,7 +43,7 @@ env:
   - name: SQS_WAIT_TIME_SECONDS
     value: "20"
   - name: METRICS_PORT
-    value: "8000"
+    value: "8080"
 
 # Pod labels
 podLabels:
