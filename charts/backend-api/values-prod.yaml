@@ -1,15 +1,11 @@
 # Production environment values for backend-api
-
 replicaCount: 2
-
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/backend-api
-  tag: "769b91bec"  # Redis SSL enabled for ElastiCache TLS
-
+  tag: "89fedba01" # Redis SSL enabled for ElastiCache TLS
 serviceAccount:
   annotations:
     eks.amazonaws.com/role-arn: arn:aws:iam::337112169365:role/gympt-prod-backend-api-pod-role
-
 ingress:
   enabled: true
   className: alb
@@ -29,7 +25,6 @@ ingress:
     - secretName: backend-api-tls
       hosts:
         - api.g2mpt.com
-
 resources:
   limits:
     cpu: 2000m
@@ -37,14 +32,12 @@ resources:
   requests:
     cpu: 1000m
     memory: 1Gi
-
 autoscaling:
   enabled: true
   minReplicas: 2
   maxReplicas: 20
   targetCPUUtilizationPercentage: 60
   targetMemoryUtilizationPercentage: 70
-
 env:
   - name: ENV
     value: "prod"
@@ -54,7 +47,6 @@ env:
     value: "ap-northeast-2"
   - name: LOG_LEVEL
     value: "INFO"
-
 configMap:
   data:
     LOG_LEVEL: "INFO"
@@ -64,33 +56,40 @@ configMap:
     REPORT_SERVICE_URL: "http://report-service:8003"
     NOTIFICATION_SERVICE_URL: "http://notification-service:8004"
     # Database configuration
+
     DB_HOST: "gympt-prod-postgres.cpuskg4g6hoy.ap-northeast-2.rds.amazonaws.com"
     DB_PORT: "5432"
     DB_NAME: "gympt"
     DB_USERNAME: "gymptadmin"
     # Redis configuration
+
     REDIS_HOST: "master.gympt-prod-redis.8yu9pt.apn2.cache.amazonaws.com"
     REDIS_PORT: "6379"
     # AWS configuration
+
     AWS_ACCOUNT_ID: "337112169365"
     # S3 buckets
+
     S3_MEDIA_BUCKET: "gympt-prod-media"
     S3_REPORT_BUCKET: "gympt-prod-reports"
     # DynamoDB tables
+
     DYNAMODB_WORKOUT_SESSIONS_TABLE: "gympt-prod-workout-sessions"
     DYNAMODB_POSTURE_EVENTS_TABLE: "gympt-prod-posture-events"
     DYNAMODB_WEARABLE_EVENTS_TABLE: "gympt-prod-wearable-events"
     DYNAMODB_AGENT_INTERACTIONS_TABLE: "gympt-prod-agent-interactions"
     # SQS queues
+
     SQS_POSTURE_EVENT_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-posture-events"
     SQS_REPORT_GENERATION_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-report-generation"
     # EventBridge
+
     EVENTBRIDGE_BUS_NAME: "gympt-prod-event-bus"
     # Cognito configuration
-    COGNITO_ISSUER_URI: "https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_RuK8MTAAh"
 
+    COGNITO_ISSUER_URI: "https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_RuK8MTAAh"
 externalSecrets:
-  enabled: false  # Disabled - ClusterSecretStore not configured yet
+  enabled: false # Disabled - ClusterSecretStore not configured yet
   refreshInterval: 1h
   secretStoreRef:
     name: aws-secrets-manager
@@ -116,11 +115,9 @@ externalSecrets:
       remoteRef:
         key: gympt/prod/aws
         property: secretAccessKey
-
 serviceMonitor:
   enabled: true
   interval: 30s
-
 networkPolicy:
   enabled: true
   policyTypes:
@@ -142,16 +139,14 @@ networkPolicy:
         - namespaceSelector: {}
       ports:
         - protocol: TCP
-          port: 5432  # PostgreSQL
+          port: 5432 # PostgreSQL
         - protocol: TCP
-          port: 6379  # Redis
+          port: 6379 # Redis
         - protocol: TCP
-          port: 443   # HTTPS
-
+          port: 443 # HTTPS
 podDisruptionBudget:
   enabled: true
   minAvailable: 2
-
 affinity:
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
