@@ -12,6 +12,8 @@ spec:
     - 'https://github.com/hj-3/gympt-gitops.git'
 
   destinations:
+    - namespace: argocd
+      server: https://kubernetes.default.svc
     - namespace: 'gympt-*'
       server: https://kubernetes.default.svc
     - namespace: default
@@ -22,6 +24,8 @@ spec:
       kind: Namespace
 
   namespaceResourceWhitelist:
+    - group: argoproj.io
+      kind: Application
     - group: ''
       kind: Service
     - group: ''

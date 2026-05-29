@@ -97,6 +97,7 @@ env:
 envFrom:
   - secretRef:
       name: remediation-worker-secrets
+      optional: true
 
 # Liveness probe
 livenessProbe:

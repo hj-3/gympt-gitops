@@ -97,6 +97,7 @@ env:
 envFrom:
   - secretRef:
       name: agent-service-secrets
+      optional: true
 
 # Liveness probe
 livenessProbe:
