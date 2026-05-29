@@ -20,7 +20,7 @@ data:
 
     [metrics]
     enabled = true
-    {{- $metricsPort := "8000" }}
+    {{- $metricsPort := "8080" }}
     {{- range .Values.env }}
     {{- if eq .name "METRICS_PORT" }}
     {{- $metricsPort = .value }}

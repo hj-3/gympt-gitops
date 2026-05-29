@@ -15,6 +15,6 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
       protocol: TCP
-      name: metrics
+      name: http
   selector:
     {{- include "remediation-worker.selectorLabels" . | nindent 4 }}

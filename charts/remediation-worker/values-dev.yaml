@@ -42,7 +42,7 @@ env:
   - name: SQS_WAIT_TIME_SECONDS
     value: "20"
   - name: METRICS_PORT
-    value: "8000"
+    value: "8080"
 
 # Pod labels
 podLabels:

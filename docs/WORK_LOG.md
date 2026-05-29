@@ -668,3 +668,22 @@ Follow-up change:
 
 - Infra에는 아직 `generic-worker` IRSA 관련 참조가 남아 있다.
 - 이번 변경은 GitOps 배포 표면 제거가 목적이므로 Terraform 쪽 참조는 건드리지 않았다.
+
+## 2026-05-29 remediation-worker 포트 정합성 수정
+
+배경:
+
+- `remediation-worker` 애플리케이션과 Dockerfile은 8080 포트로 실행된다.
+- Helm chart는 8000 포트를 바라보고 있어 Service, probe, Prometheus annotation이 실제 컨테이너 포트와 맞지 않았다.
+
+변경:
+
+- `charts/remediation-worker`의 Service port와 targetPort를 8080/http 기준으로 정리했다.
+- Deployment containerPort를 8080으로 변경했다.
+- liveness/readiness probe가 `http` 포트를 보도록 변경했다.
+- `METRICS_PORT`와 Prometheus annotation을 8080으로 맞췄다.
+
+검증:
+
+- `helm lint charts/remediation-worker` 통과
+- dev/prod values 기준 `helm template` 통과
