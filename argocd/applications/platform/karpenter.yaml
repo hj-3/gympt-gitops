@@ -6,17 +6,27 @@ metadata:
 spec:
   project: gympt-platform
   source:
-    repoURL: https://karpenter.sh
+    repoURL: public.ecr.aws/karpenter
     chart: karpenter
-    targetRevision: v0.33.0
+    targetRevision: 1.5.0
     helm:
       parameters:
         - name: settings.clusterName
+          value: gympt-prod-eks
+        - name: settings.interruptionQueue
           value: gympt-prod-eks
         - name: serviceAccount.annotations.eks\.amazonaws\.com/role-arn
           value: arn:aws:iam::337112169365:role/gympt-prod-karpenter-controller
         - name: settings.clusterEndpoint
           value: https://6EBC4BB7E0BFCEC51400A705F91DD0E4.yl4.ap-northeast-2.eks.amazonaws.com
+        - name: controller.resources.requests.cpu
+          value: "1"
+        - name: controller.resources.requests.memory
+          value: 1Gi
+        - name: controller.resources.limits.cpu
+          value: "1"
+        - name: controller.resources.limits.memory
+          value: 1Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: karpenter
