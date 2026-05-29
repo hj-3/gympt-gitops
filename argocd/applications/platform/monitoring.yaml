@@ -92,7 +92,7 @@ spec:
             enabled: true
             ingressClassName: alb
             hosts:
-              - grafana.dev.g2mpt.com
+              - grafana.g2mpt.com
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
