@@ -783,3 +783,24 @@ Follow-up change:
 
 - Terraform apply 후 `gympt-prod-external-secrets-policy`의 Secrets Manager resource가 `secret:gympt/prod/*`로 갱신되었는지 확인
 - `backend-api-prod-secrets`, `agent-service-secrets`, `remediation-worker-secrets`가 Kubernetes Secret으로 생성되는지 확인
+
+## 2026-05-29 backend-api ExternalSecret property 수정
+
+배경:
+
+- External Secrets IAM 권한 수정 후 `backend-api-prod-secrets`는 AccessDenied를 통과했다.
+- 이후 `gympt/prod/redis`에서 `password` property를 찾지 못해 `SecretSyncedError`가 계속됐다.
+- 실제 `gympt/prod/redis` SecretString은 `host`, `port`, `auth_token` key를 가진다.
+- `gympt/prod/aws` Secret은 존재하지 않았고, backend-api는 IRSA role을 사용하므로 static AWS access key Secret 주입이 필요하지 않다.
+
+변경:
+
+- `charts/backend-api/values-prod.yaml`
+  - `REDIS_PASSWORD` remoteRef property를 `password`에서 `auth_token`으로 변경했다.
+  - 존재하지 않는 `gympt/prod/aws` 기반 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` ExternalSecret 항목을 제거했다.
+
+비교 결과:
+
+- `database.password`와 `jwt.secret`은 실제 Secrets Manager key와 일치한다.
+- `agent-service`와 `remediation-worker`는 `dataFrom.key` 스키마 수정이 필요하다.
+- `kvs-consumer-service`, `report-service`, `posture-analysis-service` prod values는 현재 ExternalSecret 기반 Secret 주입 대상이 아니다.

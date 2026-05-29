@@ -102,19 +102,11 @@ externalSecrets:
     - secretKey: REDIS_PASSWORD
       remoteRef:
         key: gympt/prod/redis
-        property: password
+        property: auth_token
     - secretKey: JWT_SECRET
       remoteRef:
         key: gympt/prod/jwt
         property: secret
-    - secretKey: AWS_ACCESS_KEY_ID
-      remoteRef:
-        key: gympt/prod/aws
-        property: accessKeyId
-    - secretKey: AWS_SECRET_ACCESS_KEY
-      remoteRef:
-        key: gympt/prod/aws
-        property: secretAccessKey
 serviceMonitor:
   enabled: true
   interval: 30s
