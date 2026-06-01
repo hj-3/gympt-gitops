@@ -2,7 +2,7 @@
 replicaCount: 3
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/agent-service
-  tag: "29-fedba01"
+  tag: "31-b6e7ace"
 serviceAccount:
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-agent-service-pod-role"
