@@ -8,10 +8,10 @@ spec:
     - alias: al2023@latest
   role: gympt-prod-eks-node-role
   subnetSelectorTerms:
-    - id: subnet-052c2c7ea25467e55
-    - id: subnet-0de1a8a75f20b9927
+    - id: subnet-09bc64717bafd6550
+    - id: subnet-0c69317e659bde74d
   securityGroupSelectorTerms:
-    - id: sg-07dd6c7d06fe338a3
+    - id: sg-0c79421bbf2625bce
   blockDeviceMappings:
     - deviceName: /dev/xvda
       ebs:
