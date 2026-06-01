@@ -2,7 +2,7 @@
 replicaCount: 2
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/backend-api
-  tag: "91-b6e7ace"
+  tag: "93-336c59d"
 serviceAccount:
   annotations:
     eks.amazonaws.com/role-arn: arn:aws:iam::337112169365:role/gympt-prod-backend-api-pod-role
