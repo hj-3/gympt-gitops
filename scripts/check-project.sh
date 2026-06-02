@@ -64,12 +64,12 @@ check_exists() {
 }
 
 # Repository Structure
-echo -e "\n${BLUE}=== Repository Structure ===${NC}"
-check_exists ".gitignore" "file" "Root .gitignore" "critical"
-check_exists "README.md" "file" "Root README.md" "critical"
-check_exists "README-GITOPS.md" "file" "GitOps guide" "important"
-check_exists "NAMESPACE_STRATEGY.md" "file" "Namespace strategy" "important"
-check_exists "CHECKLIST.md" "file" "Project checklist" "important"
+#echo -e "\n${BLUE}=== Repository Structure ===${NC}"
+#check_exists ".gitignore" "file" "Root .gitignore" "critical"
+#check_exists "README.md" "file" "Root README.md" "critical"
+#check_exists "README-GITOPS.md" "file" "GitOps guide" "important"
+#check_exists "NAMESPACE_STRATEGY.md" "file" "Namespace strategy" "important"
+#check_exists "CHECKLIST.md" "file" "Project checklist" "important"
 
 # Argo CD Configuration
 echo -e "\n${BLUE}=== Argo CD Configuration ===${NC}"

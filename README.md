@@ -1,149 +1,214 @@
 # GYMPT GitOps
 
-Kubernetes 매니페스트 및 Helm 차트 저장소
+> GYMPT 플랫폼을 위한 Kubernetes 매니페스트 및 Helm 차트
+
+[![ArgoCD](https://img.shields.io/badge/ArgoCD-GitOps-blue)](https://argo-cd.readthedocs.io/)
+[![Helm](https://img.shields.io/badge/Helm-3.12+-0F1689)](https://helm.sh/)
+
+---
 
 ## 📋 개요
 
-GYMPT 플랫폼의 모든 Kubernetes 리소스를 GitOps 방식으로 관리합니다.
+GYMPT 플랫폼을 위한 모든 Kubernetes 매니페스트, Helm 차트, ArgoCD 애플리케이션이 포함된 GitOps 저장소입니다.
 
-### GitOps 원칙
-- 📝 선언적 구성 (모든 것이 YAML)
-- 🔄 Git = 단일 진실 소스
-- 🤖 자동 동기화 (Argo CD)
-- 📜 감사 가능 (Git 이력)
-- ⏮️ 쉬운 롤백
+### 저장소 구조
 
-## 🏗️ 구조
+```
+gympt-gitops/
+├── argocd/
+│   ├── projects/           # ArgoCD 프로젝트
+│   └── applications/       # ArgoCD 애플리케이션 정의
+│       ├── platform/       # 플랫폼 서비스 (모니터링 등)
+│       └── *.yaml          # App-of-apps 패턴
+│
+├── charts/                 # 애플리케이션용 Helm 차트
+│   ├── backend-api/
+│   ├── agent-service/
+│   ├── posture-analysis-service/
+│   ├── report-service/
+│   ├── kvs-consumer-service/
+│   └── remediation-worker/
+│
+├── platform/               # 플랫폼 설정
+│   ├── karpenter/         # Karpenter NodePools
+│   └── monitoring/        # Prometheus, Grafana 설정
+│
+└── docs/                  # 문서
+```
 
-### Helm 차트 (7개)
-- backend-api
-- agent-service
-- posture-analysis-service
-- report-service
-- notification-service
-- remediation-worker
-
-### Platform 서비스
-- **monitoring** - Prometheus + Grafana
-- **logging** - Fluent Bit
-- **remediation** - 자동 복구
-- **external-secrets** - AWS Secrets Manager 통합
-- **network-policies** - Zero-Trust 네트워크
-
-### Argo CD
-- App-of-Apps 패턴
-- Dev/Prod 환경 분리
-- 자동 동기화 및 Self-Heal
+---
 
 ## 🚀 빠른 시작
 
 ### 사전 요구사항
-- Kubernetes 클러스터 (EKS)
-- kubectl
-- Helm 3.x
-- Argo CD CLI
 
-### Argo CD 설치
-
-```bash
-# Argo CD 설치
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-# Admin 비밀번호
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-
-# 포트 포워딩
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-```
+- EKS 클러스터 배포 완료 (gympt-infra 통해)
+- kubectl 설정 완료
+- ArgoCD 설치 완료
 
 ### 애플리케이션 배포
 
 ```bash
-# 프로젝트 생성
-kubectl apply -f argocd/projects/
+# ArgoCD 설치 (아직 설치하지 않은 경우)
+../scripts/bootstrap-argocd.sh
 
-# App-of-Apps 배포
-kubectl apply -f argocd/app-of-apps/dev-apps.yaml
-
-# 상태 확인
-argocd app list
+# 모든 애플리케이션 적용
+kubectl apply -f argocd/applications/gympt-prod-apps.yaml
 ```
 
-### Platform 서비스 설치
+---
+
+## 📦 애플리케이션
+
+### 백엔드 서비스
+
+| 서비스 | 차트 | 설명 |
+|---------|-------|-------------|
+| **backend-api** | `charts/backend-api` | 메인 API (Spring Boot) |
+| **agent-service** | `charts/agent-service` | AI 에이전트 (AWS Bedrock) |
+| **posture-analysis-service** | `charts/posture-analysis-service` | 자세 분석 (MediaPipe + GPU) |
+| **report-service** | `charts/report-service` | PDF 리포트 생성 |
+| **kvs-consumer-service** | `charts/kvs-consumer-service` | Kinesis Video Stream 컨슈머 |
+| **remediation-worker** | `charts/remediation-worker` | 백그라운드 작업 워커 |
+
+### 플랫폼 서비스
+
+| 서비스 | 위치 | 설명 |
+|---------|----------|-------------|
+| **모니터링 스택** | `argocd/applications/platform/monitoring.yaml` | Prometheus + Grafana |
+| **External Secrets** | `argocd/applications/platform/external-secrets.yaml` | AWS Secrets Manager 통합 |
+
+---
+
+## 🔄 GitOps 워크플로우
+
+```
+1. 개발자가 gympt-app에 코드 커밋
+   ↓
+2. CI/CD가 Docker 이미지 빌드 및 ECR에 푸시
+   ↓
+3. CI/CD가 gympt-gitops에서 이미지 태그 업데이트
+   ↓
+4. ArgoCD가 Git 변경사항 감지
+   ↓
+5. ArgoCD가 EKS에 자동 배포
+```
+
+---
+
+## 📝 애플리케이션 업데이트
+
+### 이미지 태그 업데이트
 
 ```bash
-# Monitoring
-helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
-  -f platform/monitoring/values-dev.yaml \
-  --namespace monitoring --create-namespace
+# values 파일에서 이미지 태그 업데이트
+cd charts/backend-api
+sed -i 's/tag: .*/tag: v2.0.0/' values-prod.yaml
 
-# External Secrets Operator
-helm install external-secrets external-secrets/external-secrets \
-  -f platform/external-secrets/values.yaml \
-  --namespace external-secrets --create-namespace
+# 커밋 및 푸시
+git add .
+git commit -m "Update backend-api to v2.0.0"
+git push
 
-# NetworkPolicy 적용
-./scripts/apply-network-policies.sh dev
+# ArgoCD가 자동으로 동기화
 ```
 
-## 📖 문서
+### 수동 동기화
 
-- [GitOps 가이드](docs/GitOps가이드.md)
-- [Helm 차트](docs/Helm차트.md)
-- [Platform 서비스](docs/Platform서비스.md)
-- [배포 절차](docs/배포절차.md)
-- [트러블슈팅](docs/트러블슈팅.md)
+```bash
+# CLI를 통한 동기화
+argocd app sync backend-api-prod
 
-## 🔧 주요 스크립트
+# 또는 UI를 통해
+open https://argocd.gympt.com
+```
 
-- `apply-network-policies.sh` - NetworkPolicy 배포
-- `test-connectivity.sh` - 연결성 테스트
-- `verify-completion.sh` - 완성도 검증
+---
 
-## 📦 Helm 차트 구조
+## 🎯 환경별 Values
 
-각 차트는 다음을 포함:
-- Chart.yaml
-- values.yaml, values-dev.yaml, values-prod.yaml
-- templates/ (Deployment, Service, HPA, PDB 등)
+각 차트에는 환경별 values가 있습니다:
 
-## 🛡️ 보안
+```
+charts/backend-api/
+├── Chart.yaml
+├── templates/
+├── values.yaml           # 기본값
+├── values-dev.yaml       # 개발 환경 오버라이드
+└── values-prod.yaml      # 프로덕션 환경 오버라이드
+```
 
-- **External Secrets**: AWS Secrets Manager 통합
-- **NetworkPolicy**: Zero-Trust 네트워크 격리
-- **IRSA**: IAM Roles for Service Accounts
-- **PodSecurityPolicy**: Pod 보안 표준
+---
+
+## 🔐 비밀 관리
+
+### External Secrets Operator 사용
+
+```yaml
+# 예시: ExternalSecret
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: backend-api-secrets
+spec:
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: SecretStore
+  target:
+    name: backend-api-secrets
+  data:
+    - secretKey: DB_PASSWORD
+      remoteRef:
+        key: gympt/prod/db-password
+```
+
+---
 
 ## 📊 모니터링
 
-- **Prometheus**: 메트릭 수집
-- **Grafana**: 대시보드 (6개)
-- **Alertmanager**: 알림 라우팅
-- **ServiceMonitor**: 자동 메트릭 스크래핑
+### Grafana 접근
 
-## 🔄 CI/CD
+```bash
+kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
+open http://localhost:3000
+# admin / [secret의 비밀번호]
+```
 
-GitHub Actions로 자동화:
-- Helm lint
-- Kubeconform 검증
-- Dev 환경 자동 동기화
+### Prometheus 접근
+
+```bash
+kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-stack-prometheus 9090:9090
+open http://localhost:9090
+```
+
+---
+
+## 🧪 로컬에서 변경사항 테스트
+
+```bash
+# Helm 차트 dry-run
+helm template backend-api ./charts/backend-api \
+  -f ./charts/backend-api/values-prod.yaml
+
+# 매니페스트 검증
+kubectl apply --dry-run=client -f <manifest>
+
+# kind/minikube로 테스트
+kind create cluster
+kubectl apply -f argocd/applications/
+```
+
+---
 
 ## 🤝 기여하기
 
-[CONTRIBUTING.md](CONTRIBUTING.md) 참고
+1. 기능 브랜치 생성
+2. 차트/매니페스트 업데이트
+3. 로컬에서 테스트
+4. PR 제출
+5. 머지 후 ArgoCD가 자동 배포
 
 ---
 
----
-
-## 📦 버전
-
-**Current Version:** `0.1.0`
-
-**Changelog:** [CHANGELOG.md](../CHANGELOG.md)
-
----
-
-**상태**: Production Ready ✅  
-**마지막 업데이트**: 2026-05-19
+**저장소**: https://github.com/hj-3/gympt-gitops  
+**최종 업데이트**: 2026-06-02

@@ -1,3 +1,12 @@
+# NOTE: These resources are now managed by Terraform
+# See: gympt-infra/terraform/modules/eks/kubernetes-addons.tf
+#
+# This file is kept for reference but should not be applied manually
+# when using Terraform-managed infrastructure.
+#
+# If you need to apply these manually (non-Terraform setup):
+# kubectl apply -f provisioner.yaml
+
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
@@ -6,12 +15,13 @@ spec:
   amiFamily: AL2023
   amiSelectorTerms:
     - alias: al2023@latest
-  role: gympt-prod-eks-node-role
+  role: gympt-prod-eks-node-role  # Update for your environment
   subnetSelectorTerms:
-    - id: subnet-09bc64717bafd6550
-    - id: subnet-0c69317e659bde74d
+    - tags:
+        karpenter.sh/discovery: "gympt-prod-eks"  # Update for your cluster
   securityGroupSelectorTerms:
-    - id: sg-0c79421bbf2625bce
+    - tags:
+        karpenter.sh/discovery: "gympt-prod-eks"  # Update for your cluster
   blockDeviceMappings:
     - deviceName: /dev/xvda
       ebs:
