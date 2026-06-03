@@ -6,6 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana-dashboards
     app.kubernetes.io/part-of: monitoring
+    grafana_dashboard: "1"
 data:
   dashboard-api-latency.json: |-
     {
