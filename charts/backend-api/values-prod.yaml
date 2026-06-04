@@ -2,7 +2,7 @@
 replicaCount: 2
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/backend-api
-  tag: "731e75936"
+  tag: "101-8ccd501"
 serviceAccount:
   annotations:
     eks.amazonaws.com/role-arn: arn:aws:iam::337112169365:role/gympt-prod-backend-api-pod-role
@@ -16,6 +16,7 @@ ingress:
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:337112169365:certificate/f69f74d7-6b56-43ad-b686-cb06d893a99d
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
+    alb.ingress.kubernetes.io/subnets: subnet-05bec68056add578f,subnet-05cdceb815f774d8d
   hosts:
     - host: api.g2mpt.com
       paths:
