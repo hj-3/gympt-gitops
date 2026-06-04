@@ -12,6 +12,8 @@ spec:
   destinations:
     - namespace: 'karpenter'
       server: https://kubernetes.default.svc
+    - namespace: 'external-secrets'
+      server: https://kubernetes.default.svc
     - namespace: 'monitoring'
       server: https://kubernetes.default.svc
     - namespace: 'kube-system'
