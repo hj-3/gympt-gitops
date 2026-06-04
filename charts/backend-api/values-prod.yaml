@@ -1,5 +1,5 @@
 # Production environment values for backend-api
-replicaCount: 2
+replicaCount: 1
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/backend-api
   tag: "101-8ccd501"
@@ -34,7 +34,7 @@ resources:
     memory: 1Gi
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 20
   targetCPUUtilizationPercentage: 60
   targetMemoryUtilizationPercentage: 70
@@ -138,7 +138,7 @@ networkPolicy:
           port: 443 # HTTPS
 podDisruptionBudget:
   enabled: true
-  minAvailable: 2
+  minAvailable: 1
 affinity:
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:

@@ -1,5 +1,5 @@
 # Production values for report-service
-replicaCount: 2
+replicaCount: 1
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/report-service
   tag: "18-aa29a45"
@@ -29,7 +29,7 @@ env:
     value: "gympt-prod-reports"
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 70
 podDisruptionBudget:

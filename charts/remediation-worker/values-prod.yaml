@@ -1,5 +1,5 @@
 # Production environment overrides
-replicaCount: 3
+replicaCount: 1
 image:
   tag: "12-fedba01" # Set by CI/CD pipeline
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/remediation-worker
@@ -26,7 +26,7 @@ resources:
 # Aggressive autoscaling in production
 autoscaling:
   enabled: true
-  minReplicas: 3
+  minReplicas: 1
   maxReplicas: 20
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 80
@@ -60,7 +60,7 @@ podLabels:
 # Pod disruption budget for high availability
 podDisruptionBudget:
   enabled: true
-  minAvailable: 2
+  minAvailable: 1
 # Longer termination grace period for graceful shutdown
 terminationGracePeriodSeconds: 60
 # Node affinity for production workloads
