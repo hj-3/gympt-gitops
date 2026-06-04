@@ -2,7 +2,7 @@
 archive/
 
 # Scripts
-scripts/*
+scripts/
 
 # Helm
 charts/**/charts/
