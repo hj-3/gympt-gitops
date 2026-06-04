@@ -51,9 +51,9 @@ configMap:
   data:
     LOG_LEVEL: "INFO"
     CORS_ORIGINS: "https://g2mpt.com,https://www.g2mpt.com,https://d97iz6muc3af.cloudfront.net"
-    AGENT_SERVICE_BASE_URL: "http://agent-service.gympt-prod.svc.cluster.local:8000"
-    POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service:8002"
-    REPORT_SERVICE_URL: "http://report-service:8003"
+    AGENT_SERVICE_BASE_URL: "http://agent-service-prod.gympt-prod.svc.cluster.local:8001"
+    POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service-prod.gympt-prod.svc.cluster.local:8002"
+    REPORT_SERVICE_URL: "http://report-service-prod.gympt-prod.svc.cluster.local:8003"
     NOTIFICATION_SERVICE_URL: "http://notification-service:8004"
     # Database configuration
 

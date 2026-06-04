@@ -28,7 +28,7 @@ env:
   - name: KVS_CHANNEL_PREFIX
     value: "prod-gympt"
   - name: POSTURE_ANALYSIS_URL
-    value: "http://posture-analysis-service:8002/api/v1"
+    value: "http://posture-analysis-service-prod.gympt-prod.svc.cluster.local:8002/api/v1"
 autoscaling:
   enabled: true
   minReplicas: 2
