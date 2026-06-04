@@ -23,8 +23,6 @@ spec:
           value: arn:aws:iam::337112169365:role/gympt-prod-alb-controller
         - name: region
           value: ap-northeast-2
-        - name: vpcId
-          value: vpc-0e7d2db156f48515d
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
