@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: public.ecr.aws/karpenter
     chart: karpenter
-    targetRevision: 1.6.0
+    targetRevision: 1.9.0
     helm:
       parameters:
         - name: settings.clusterName
