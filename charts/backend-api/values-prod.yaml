@@ -116,14 +116,7 @@ networkPolicy:
     - Ingress
     - Egress
   ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              name: ingress
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/name: agent-service
-      ports:
+    - ports:
         - protocol: TCP
           port: 8080
   egress:
@@ -131,11 +124,19 @@ networkPolicy:
         - namespaceSelector: {}
       ports:
         - protocol: TCP
+          port: 443 # HTTPS (AWS services: Cognito, Bedrock, S3, SQS, DynamoDB)
+        - protocol: TCP
           port: 5432 # PostgreSQL
         - protocol: TCP
           port: 6379 # Redis
         - protocol: TCP
-          port: 443 # HTTPS
+          port: 8001 # agent-service
+        - protocol: TCP
+          port: 8002 # posture-analysis-service
+        - protocol: TCP
+          port: 8003 # report-service
+        - protocol: TCP
+          port: 8004 # notification-service
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
