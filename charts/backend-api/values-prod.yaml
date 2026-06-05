@@ -1,8 +1,8 @@
 # Production environment values for backend-api
-replicaCount: 2
+replicaCount: 1
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/backend-api
-  tag: "101-8ccd501"
+  tag: "105-00962ae"
 serviceAccount:
   annotations:
     eks.amazonaws.com/role-arn: arn:aws:iam::337112169365:role/gympt-prod-backend-api-pod-role
@@ -34,7 +34,7 @@ resources:
     memory: 1Gi
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 20
   targetCPUUtilizationPercentage: 60
   targetMemoryUtilizationPercentage: 70
@@ -51,9 +51,9 @@ configMap:
   data:
     LOG_LEVEL: "INFO"
     CORS_ORIGINS: "https://g2mpt.com,https://www.g2mpt.com,https://d97iz6muc3af.cloudfront.net"
-    AGENT_SERVICE_BASE_URL: "http://agent-service.gympt-prod.svc.cluster.local:8000"
-    POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service:8002"
-    REPORT_SERVICE_URL: "http://report-service:8003"
+    AGENT_SERVICE_BASE_URL: "http://agent-service-prod.gympt-prod.svc.cluster.local:8001"
+    POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service-prod.gympt-prod.svc.cluster.local:8002"
+    REPORT_SERVICE_URL: "http://report-service-prod.gympt-prod.svc.cluster.local:8003"
     NOTIFICATION_SERVICE_URL: "http://notification-service:8004"
     # Database configuration
 
@@ -138,7 +138,7 @@ networkPolicy:
           port: 443 # HTTPS
 podDisruptionBudget:
   enabled: true
-  minAvailable: 2
+  minAvailable: 1
 affinity:
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:

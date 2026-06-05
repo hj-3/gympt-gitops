@@ -1,5 +1,5 @@
 # Production values for kvs-consumer-service
-replicaCount: 2
+replicaCount: 1
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/kvs-consumer-service
   tag: "22-aa29a45"
@@ -28,10 +28,10 @@ env:
   - name: KVS_CHANNEL_PREFIX
     value: "prod-gympt"
   - name: POSTURE_ANALYSIS_URL
-    value: "http://posture-analysis-service:8002/api/v1"
+    value: "http://posture-analysis-service-prod.gympt-prod.svc.cluster.local:8002/api/v1"
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 70
 podDisruptionBudget:

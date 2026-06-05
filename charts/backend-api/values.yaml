@@ -149,9 +149,9 @@ configMap:
   data:
     LOG_LEVEL: "INFO"
     CORS_ORIGINS: "https://dev.gympt.example.com"
-    AGENT_SERVICE_URL: "http://agent-service:8001"
-    POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service:8002"
-    REPORT_SERVICE_URL: "http://report-service:8003"
+    AGENT_SERVICE_URL: "http://agent-service-prod:8001"
+    POSTURE_ANALYSIS_SERVICE_URL: "http://posture-analysis-service-prod:8002"
+    REPORT_SERVICE_URL: "http://report-service-prod:8003"
     NOTIFICATION_SERVICE_URL: "http://notification-service:8004"
 
 externalSecrets:
