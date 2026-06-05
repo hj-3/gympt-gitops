@@ -68,10 +68,12 @@ env:
     # Backend API
 
     value: "http://backend-api-prod.gympt-prod.svc.cluster.local:8080"
-  - name: SQS_AGENT_TASK_QUEUE_URL
-    # SQS Configuration
-
-    value: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-agent-task-queue"
+  - name: SQS_POSTURE_EVENT_QUEUE_URL
+    value: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-posture-event-queue"
+  - name: SQS_REPORT_GENERATION_QUEUE_URL
+    value: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-report-generation-queue"
+  - name: AWS_ACCOUNT_ID
+    value: "337112169365"
 # Pod labels
 podLabels:
   environment: production

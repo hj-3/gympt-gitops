@@ -16,6 +16,7 @@ ingress:
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:337112169365:certificate/f69f74d7-6b56-43ad-b686-cb06d893a99d
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=120
   hosts:
     - host: api.g2mpt.com
       paths:
@@ -80,8 +81,9 @@ configMap:
     DYNAMODB_AGENT_INTERACTIONS_TABLE: "gympt-prod-agent-interactions"
     # SQS queues
 
-    SQS_POSTURE_EVENT_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-posture-events"
-    SQS_REPORT_GENERATION_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-report-generation"
+    SQS_POSTURE_EVENT_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-posture-event-queue"
+    SQS_REPORT_GENERATION_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-report-generation-queue"
+    SQS_RECOMMENDATION_UPDATE_QUEUE_URL: "https://sqs.ap-northeast-2.amazonaws.com/337112169365/gympt-prod-recommendation-update-queue"
     # EventBridge
 
     EVENTBRIDGE_BUS_NAME: "gympt-prod-event-bus"
