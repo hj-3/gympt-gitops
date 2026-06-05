@@ -181,6 +181,32 @@ kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-stack-promethe
 open http://localhost:9090
 ```
 
+### Slack 알람
+
+Alertmanager Slack 알림은 Kubernetes Secret `monitoring/alertmanager-slack-webhook`의 `url` key를 사용합니다.
+원본 webhook URL은 AWS Secrets Manager의 `gympt/prod/remediation-worker` Secret에 `slack_webhook_url` key로 보관합니다.
+
+현재 Slack 알림 라우트는 알림 폭주 방지를 위해 꺼져 있습니다. 다시 켤 때는 `AlertmanagerConfig`만 적용합니다:
+
+```bash
+kubectl apply -f platform/monitoring/alertmanagerconfig-slack.yaml
+```
+
+끄기:
+
+```bash
+kubectl -n monitoring delete alertmanagerconfig slack-alerts
+```
+
+확인:
+
+```bash
+kubectl -n monitoring get secret alertmanager-slack-webhook
+kubectl -n monitoring get alertmanagerconfig
+```
+
+기본 라우팅은 `severity=warning|critical` 알림을 `#alerts`로 보냅니다. 알림량이 많으면 `platform/monitoring/alertmanagerconfig-slack.yaml`의 matcher를 `critical`만 보내도록 좁힌 뒤 적용합니다.
+
 ---
 
 ## 🧪 로컬에서 변경사항 테스트
@@ -211,4 +237,4 @@ kubectl apply -f argocd/applications/
 ---
 
 **저장소**: https://github.com/hj-3/gympt-gitops  
-**최종 업데이트**: 2026-06-02
+**최종 업데이트**: 2026-06-05
