@@ -49,6 +49,18 @@ spec:
   - name: kubernetes.rules
     interval: 30s
     rules:
+    - alert: NodeHighCPUUsage
+      expr: |
+        (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100 > 60
+      for: 5m
+      labels:
+        severity: warning
+        component: kubernetes
+      annotations:
+        summary: "Node CPU usage is high"
+        description: "Node {{ $labels.instance }} CPU usage is {{ $value | humanize }}% (threshold: 60%)"
+        runbook_url: "https://github.com/hj-3/gympt-gitops/blob/main/docs/MONITORING_STRATEGY.md"
+
     - alert: PodRestartFrequent
       expr: |
         increase(kube_pod_container_status_restarts_total{namespace=~"backend-api|agent-service|posture-analysis|workers"}[15m]) > 2
