@@ -16,7 +16,7 @@ ingress:
     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:337112169365:certificate/f69f74d7-6b56-43ad-b686-cb06d893a99d
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/healthcheck-path: /actuator/health
-    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=120
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=120,access_logs.s3.enabled=true,access_logs.s3.bucket=gympt-prod-logs-337112169365,access_logs.s3.prefix=alb-access-logs
   hosts:
     - host: api.g2mpt.com
       paths:
