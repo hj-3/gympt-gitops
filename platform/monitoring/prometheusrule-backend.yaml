@@ -2,7 +2,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: backend-api-rules
-  namespace: backend-api
+  namespace: gympt-prod
   labels:
     release: monitoring
 spec:
