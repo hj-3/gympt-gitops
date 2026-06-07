@@ -181,6 +181,16 @@ spec:
 
 > WAF web ACL과 Firehose 등 AWS 리소스 자체는 gympt-infra(또는 콘솔)에서 관리하며, GitOps에서는 ingress annotation으로 ALB에 연결합니다. annotation을 제거하면 AWS Load Balancer Controller가 WAF 연결을 해제하므로 주의하세요.
 
+### agent-service AI 보안 (Bedrock Guardrail)
+
+agent-service의 Bedrock Agent에 Guardrail(`gympt-prod-guardrail`, us-west-2)을 연결해 AI 입출력을 보호합니다.
+
+- **콘텐츠 필터**: 유해 카테고리(증오/모욕/성적/폭력/위법) + 프롬프트 공격(인젝션) 방어, 한국어 지원(Standard tier)
+- **PII 보호**: 이름/이메일/전화/주소/나이 마스킹, 비밀번호/카드/AWS키 차단, 주민번호(정규식) 마스킹
+- **이미지 보안(CI)**: 컨테이너 빌드 시 Trivy 취약점 스캔(리포트) + ECR scan-on-push 이중 스캔
+
+> Guardrail은 콘솔에서 생성해 Bedrock Agent에 연결합니다(앱 코드 수정 불필요). 자세한 빌드 보안은 `gympt-app` README의 CI/CD 섹션 참고.
+
 ---
 
 ## 📊 모니터링
