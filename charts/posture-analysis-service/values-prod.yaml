@@ -2,7 +2,7 @@
 replicaCount: 1
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/posture-analysis-service
-  tag: "40-395516a"
+  tag: "41-786aec5"
   pullPolicy: IfNotPresent
 serviceAccount:
   create: true
