@@ -168,6 +168,31 @@ spec:
 
 ---
 
+## 🛡️ 엣지/네트워크 보안
+
+### backend-api Ingress (ALB)
+
+`charts/backend-api/values-prod.yaml`의 ingress annotation으로 ALB 엣지 보안을 적용합니다.
+
+- **WAF**: `alb.ingress.kubernetes.io/wafv2-acl-arn` 으로 Regional WAF(`gympt-alb-waf`) 연결
+  - AWS Managed Rules (CommonRuleSet / SQLi / KnownBadInputs / AdminProtection) + IP 기반 Rate Limit(2000 req / 5분)
+  - `api.g2mpt.com`은 CloudFront를 경유하지 않고 ALB 직접 구조이므로, X-Custom-Header 오리진 보호 대신 **WAF를 ALB에 직접 적용**해 보호
+- **Access Logs**: `access_logs.s3.enabled=true` 로 ALB 액세스 로그를 S3 중앙 로그 버킷(`gympt-prod-logs/alb-access-logs/`)에 적재
+
+> WAF web ACL과 Firehose 등 AWS 리소스 자체는 gympt-infra(또는 콘솔)에서 관리하며, GitOps에서는 ingress annotation으로 ALB에 연결합니다. annotation을 제거하면 AWS Load Balancer Controller가 WAF 연결을 해제하므로 주의하세요.
+
+### agent-service AI 보안 (Bedrock Guardrail)
+
+agent-service의 Bedrock Agent에 Guardrail(`gympt-prod-guardrail`, us-west-2)을 연결해 AI 입출력을 보호합니다.
+
+- **콘텐츠 필터**: 유해 카테고리(증오/모욕/성적/폭력/위법) + 프롬프트 공격(인젝션) 방어, 한국어 지원(Standard tier)
+- **PII 보호**: 이름/이메일/전화/주소/나이 마스킹, 비밀번호/카드/AWS키 차단, 주민번호(정규식) 마스킹
+- **이미지 보안(CI)**: 컨테이너 빌드 시 Trivy 취약점 스캔(리포트) + ECR scan-on-push 이중 스캔
+
+> Guardrail은 콘솔에서 생성해 Bedrock Agent에 연결합니다(앱 코드 수정 불필요). 자세한 빌드 보안은 `gympt-app` README의 CI/CD 섹션 참고.
+
+---
+
 ## 📊 모니터링
 
 ### Grafana 접근

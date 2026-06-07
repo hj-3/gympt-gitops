@@ -1,7 +1,7 @@
 # Production environment overrides
 replicaCount: 1
 image:
-  tag: "15-786aec5" # Set by CI/CD pipeline
+  tag: "16-070f8f7" # Set by CI/CD pipeline
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/remediation-worker
 serviceAccount:
   annotations:

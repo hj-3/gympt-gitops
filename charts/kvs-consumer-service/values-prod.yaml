@@ -2,7 +2,7 @@
 replicaCount: 1
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/kvs-consumer-service
-  tag: "23-786aec5"
+  tag: "24-070f8f7"
   pullPolicy: Always
 serviceAccount:
   create: true
