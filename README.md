@@ -185,6 +185,25 @@ kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-stack-promethe
 open http://localhost:9090
 ```
 
+### Prometheus 스토리지
+
+Prometheus는 50Gi PVC를 사용하며, EKS 기본 StorageClass인 `gp2`를 명시합니다. `storageClassName`이 없으면 PVC가 `Pending` 상태로 남고 Prometheus pod가 뜨지 않아 모든 알람 평가가 중단됩니다.
+
+확인:
+
+```bash
+kubectl -n monitoring get pod prometheus-kube-prometheus-stack-prometheus-0
+kubectl -n monitoring get pvc prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0
+kubectl -n monitoring describe pod prometheus-kube-prometheus-stack-prometheus-0
+```
+
+정상 상태:
+
+```text
+pod/prometheus-kube-prometheus-stack-prometheus-0   2/2 Running
+pvc/...prometheus-0                                Bound  50Gi  RWO  gp2
+```
+
 ### Slack 알람
 
 Alertmanager Slack 알림은 Kubernetes Secret `monitoring/alertmanager-slack-webhook`의 `url` key를 사용합니다.
@@ -202,6 +221,30 @@ kubectl -n monitoring get servicemonitor
 ```
 
 `platform/monitoring/alertmanagerconfig-slack.yaml`은 별도 AlertmanagerConfig 방식의 참고 매니페스트입니다. 현재 기본 배포 경로는 kube-prometheus-stack Helm values의 Alertmanager 설정입니다.
+
+### 알람 경로 테스트
+
+운영 서비스에 부하를 주기 전에 synthetic alert로 `PrometheusRule -> Prometheus -> Alertmanager -> Slack` 경로를 먼저 검증합니다.
+
+```bash
+# 테스트 알람 적용
+kubectl apply -f platform/monitoring/rules/prometheusrule-alert-test.yaml
+
+# 1-2분 뒤 Prometheus에서 firing 확인
+kubectl -n monitoring exec prometheus-kube-prometheus-stack-prometheus-0 -c prometheus -- \
+  wget -qO- http://localhost:9090/api/v1/alerts
+
+# Alertmanager 수신 확인
+kubectl -n monitoring exec alertmanager-kube-prometheus-stack-alertmanager-0 -c alertmanager -- \
+  wget -qO- http://localhost:9093/api/v2/alerts
+
+# 테스트 알람 삭제
+kubectl delete -f platform/monitoring/rules/prometheusrule-alert-test.yaml
+```
+
+`AlertmanagerTestAlwaysFiring`이 Prometheus에서 `firing`, Alertmanager에서 `active`로 보이면 알람 경로는 정상입니다. 테스트 후에는 반복 알림을 막기 위해 반드시 테스트 룰을 삭제합니다.
+
+현재 `AlertmanagerConfig/slack-alerts`가 적용되어 있으면 warning/critical 알림이 Helm 기본 receiver와 AlertmanagerConfig receiver 양쪽으로 라우팅될 수 있습니다. Slack 중복 알림이 보이면 `kubectl -n monitoring get alertmanagerconfig`로 확인한 뒤 라우팅을 하나로 정리합니다.
 
 ---
 
