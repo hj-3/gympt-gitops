@@ -87,18 +87,22 @@ kubectl apply -f argocd/applications/gympt-prod-apps.yaml
    ↓
 2. CI/CD가 Docker 이미지 빌드 및 ECR에 푸시
    ↓
-3. CI/CD가 gympt-gitops에서 이미지 태그 업데이트
+3. CI/CD가 gympt-gitops main 브랜치의 이미지 태그를 직접 업데이트
    ↓
 4. ArgoCD가 Git 변경사항 감지
    ↓
 5. ArgoCD가 EKS에 자동 배포
 ```
 
+`gympt-app`의 서비스별 CI workflow는 `charts/<service>/values-dev.yaml` 또는 `values-prod.yaml`의 `.image.tag`를 갱신한 뒤 PR을 만들지 않고 `main`에 직접 커밋합니다. `main` 브랜치 direct push가 막혀 있으면 `GITOPS_PAT`에 bypass 권한을 부여하거나 branch protection을 조정해야 합니다.
+
 ---
 
 ## 📝 애플리케이션 업데이트
 
 ### 이미지 태그 업데이트
+
+일반 배포는 `gympt-app` CI/CD가 자동으로 처리합니다. 수동으로 태그를 바꿔야 할 때만 아래 절차를 사용합니다.
 
 ```bash
 # values 파일에서 이미지 태그 업데이트
@@ -186,26 +190,18 @@ open http://localhost:9090
 Alertmanager Slack 알림은 Kubernetes Secret `monitoring/alertmanager-slack-webhook`의 `url` key를 사용합니다.
 원본 webhook URL은 AWS Secrets Manager의 `gympt/prod/remediation-worker` Secret에 `slack_webhook_url` key로 보관합니다.
 
-현재 Slack 알림 라우트는 알림 폭주 방지를 위해 꺼져 있습니다. 다시 켤 때는 `AlertmanagerConfig`만 적용합니다:
-
-```bash
-kubectl apply -f platform/monitoring/alertmanagerconfig-slack.yaml
-```
-
-끄기:
-
-```bash
-kubectl -n monitoring delete alertmanagerconfig slack-alerts
-```
+기본 Alertmanager 라우팅은 `argocd/applications/platform/monitoring.yaml`에 정의되어 있으며, `severity=warning`은 `#alerts-warning`, `severity=critical`은 `#alerts-critical`, 그 외 기본 라우트는 `#alerts`로 전송합니다.
 
 확인:
 
 ```bash
 kubectl -n monitoring get secret alertmanager-slack-webhook
-kubectl -n monitoring get alertmanagerconfig
+kubectl -n monitoring get externalsecret alertmanager-slack-webhook
+kubectl -n monitoring get prometheusrule
+kubectl -n monitoring get servicemonitor
 ```
 
-기본 라우팅은 `severity=warning|critical` 알림을 `#alerts`로 보냅니다. 알림량이 많으면 `platform/monitoring/alertmanagerconfig-slack.yaml`의 matcher를 `critical`만 보내도록 좁힌 뒤 적용합니다.
+`platform/monitoring/alertmanagerconfig-slack.yaml`은 별도 AlertmanagerConfig 방식의 참고 매니페스트입니다. 현재 기본 배포 경로는 kube-prometheus-stack Helm values의 Alertmanager 설정입니다.
 
 ---
 
@@ -237,4 +233,4 @@ kubectl apply -f argocd/applications/
 ---
 
 **저장소**: https://github.com/hj-3/gympt-gitops  
-**최종 업데이트**: 2026-06-05
+**최종 업데이트**: 2026-06-07
