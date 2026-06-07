@@ -203,6 +203,37 @@ open http://localhost:3000
 # admin / [secret의 비밀번호]
 ```
 
+### Grafana ALB Ingress
+
+Grafana Ingress는 AWS Load Balancer Controller의 `alb` IngressClass를 사용합니다. Grafana Service는 `ClusterIP` 타입이므로 ALB target group은 Pod IP를 직접 대상으로 잡아야 합니다.
+
+필수 annotation:
+
+```yaml
+grafana:
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/healthcheck-path: /api/health
+```
+
+`target-type`이 없으면 ALB Controller 기본값인 `instance` 모드로 target group을 만들려고 합니다. 이 경우 Service에 NodePort가 없어 target group port가 `0`으로 계산되고, AWS API에서 아래 오류가 발생합니다.
+
+```text
+InvalidParameter: minimum field value of 1, CreateTargetGroupInput.Port
+```
+
+확인:
+
+```bash
+kubectl -n monitoring describe ingress kube-prometheus-stack-grafana
+kubectl -n kube-system logs deploy/aws-load-balancer-controller --since=10m
+```
+
+정상 상태에서는 Ingress 이벤트에 `SuccessfullyReconciled`가 보이고, ALB Controller 모델의 target group이 `targetType: ip`, `port: 3000`으로 생성됩니다.
+
 ### Prometheus 접근
 
 ```bash
