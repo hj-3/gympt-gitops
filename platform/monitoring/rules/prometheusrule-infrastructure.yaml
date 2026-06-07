@@ -63,7 +63,7 @@ spec:
 
     - alert: PodRestartFrequent
       expr: |
-        increase(kube_pod_container_status_restarts_total{namespace=~"backend-api|agent-service|posture-analysis|workers"}[15m]) > 2
+        increase(kube_pod_container_status_restarts_total{namespace="gympt-prod"}[15m]) > 2
       for: 5m
       labels:
         severity: warning

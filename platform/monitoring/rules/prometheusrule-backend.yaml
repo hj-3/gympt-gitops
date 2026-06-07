@@ -2,7 +2,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: backend-api-rules
-  namespace: backend-api
+  namespace: gympt-prod
   labels:
     release: monitoring
 spec:
@@ -13,9 +13,9 @@ spec:
     - alert: BackendHighErrorRate
       expr: |
         (
-          sum(rate(http_server_requests_seconds_count{namespace="backend-api",status=~"5.."}[5m]))
+          sum(rate(http_server_requests_seconds_count{namespace="gympt-prod",status=~"5.."}[5m]))
           /
-          sum(rate(http_server_requests_seconds_count{namespace="backend-api"}[5m]))
+          sum(rate(http_server_requests_seconds_count{namespace="gympt-prod"}[5m]))
         ) * 100 > 5
       for: 5m
       labels:
@@ -29,7 +29,7 @@ spec:
     - alert: BackendHighLatency
       expr: |
         histogram_quantile(0.99,
-          sum(rate(http_server_requests_seconds_bucket{namespace="backend-api"}[5m])) by (le, uri)
+          sum(rate(http_server_requests_seconds_bucket{namespace="gympt-prod"}[5m])) by (le, uri)
         ) > 2
       for: 10m
       labels:
@@ -42,7 +42,7 @@ spec:
 
     - alert: BackendPodRestarting
       expr: |
-        increase(kube_pod_container_status_restarts_total{namespace="backend-api"}[15m]) > 0
+        increase(kube_pod_container_status_restarts_total{namespace="gympt-prod", pod=~"backend-api-prod-.*"}[15m]) > 0
       for: 5m
       labels:
         severity: warning
@@ -52,12 +52,28 @@ spec:
         description: "Pod {{ $labels.pod }} has restarted {{ $value }} times in the last 15 minutes"
         runbook_url: "https://github.com/hj-3/gympt-gitops/blob/main/platform/remediation/runbooks.md"
 
+    - alert: BackendDBPoolExhaustion
+      expr: |
+        (
+          hikaricp_connections_active{namespace="gympt-prod"}
+          /
+          hikaricp_connections_max{namespace="gympt-prod"}
+        ) > 0.9
+      for: 5m
+      labels:
+        severity: critical
+        component: backend-api
+      annotations:
+        summary: "Database connection pool near exhaustion"
+        description: "Connection pool usage is {{ $value | humanizePercentage }}"
+        runbook_url: "https://github.com/hj-3/gympt-gitops/blob/main/platform/remediation/runbooks.md"
+
     - alert: BackendHighMemoryUsage
       expr: |
         (
-          jvm_memory_used_bytes{namespace="backend-api",area="heap"}
+          jvm_memory_used_bytes{namespace="gympt-prod",area="heap"}
           /
-          jvm_memory_max_bytes{namespace="backend-api",area="heap"}
+          jvm_memory_max_bytes{namespace="gympt-prod",area="heap"}
         ) > 0.9
       for: 10m
       labels:

@@ -64,6 +64,12 @@ spec:
                     text: 'A critical alert was received from Alertmanager. Check Grafana and Alertmanager for details.'
         prometheus:
           prometheusSpec:
+            serviceMonitorSelectorNilUsesHelmValues: false
+            serviceMonitorSelector: {}
+            serviceMonitorNamespaceSelector: {}
+            ruleSelectorNilUsesHelmValues: false
+            ruleSelector: {}
+            ruleNamespaceSelector: {}
             storageSpec:
               volumeClaimTemplate:
                 spec:

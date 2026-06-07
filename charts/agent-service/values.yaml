@@ -55,6 +55,11 @@ service:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
 
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics
+
 # Resource limits and requests
 resources:
   limits:
