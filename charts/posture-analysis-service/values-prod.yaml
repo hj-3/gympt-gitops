@@ -54,17 +54,42 @@ affinity:
                 values:
                   - posture-analysis-service
           topologyKey: topology.kubernetes.io/zone
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:337112169365:certificate/f69f74d7-6b56-43ad-b686-cb06d893a99d
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/group.name: gympt-prod
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
+  hosts:
+    - host: posture.g2mpt.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: posture-analysis-tls
+      hosts:
+        - posture.g2mpt.com
 env:
   - name: ENV
     value: "prod"
   - name: ENABLE_GPU
     value: "true"
+  - name: MODEL_TYPE
+    value: "mediapipe"
   - name: ENABLE_KVS_MOCK
     value: "false"
   - name: AWS_REGION
     value: "ap-northeast-2"
   - name: GPU_MEMORY_FRACTION
     value: "0.8"
+  - name: CORS_ORIGINS
+    value: "https://g2mpt.com,https://www.g2mpt.com,https://d97iz6muc3af.cloudfront.net"
 autoscaling:
   enabled: false # GPU nodes typically don't autoscale
   minReplicas: 2
