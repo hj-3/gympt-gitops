@@ -65,7 +65,7 @@ ingress:
     alb.ingress.kubernetes.io/ssl-redirect: '443'
     alb.ingress.kubernetes.io/healthcheck-path: /health
     alb.ingress.kubernetes.io/group.name: gympt-prod
-    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600,routing.http2.enabled=false
   hosts:
     - host: posture.g2mpt.com
       paths:
