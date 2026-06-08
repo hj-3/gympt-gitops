@@ -247,7 +247,7 @@ curl http://localhost:8080/metrics | grep remediation
    - Throughput (sent/received/deleted)
    - DLQ messages
 
-7. **Athena Security Logs** (`dashboard-athena-security-logs.json`)
+7. **Athena Security Logs** (`dashboard-athena.json`)
    - WAF ALB/CloudFront actions by selected partition date
    - ALB and CloudFront error summaries
    - Inspector HIGH/CRITICAL findings
@@ -268,7 +268,7 @@ kubectl create configmap grafana-dashboards \
   --from-file=monitoring/dashboard-gpu-metrics.json \
   --from-file=monitoring/dashboard-redis-metrics.json \
   --from-file=monitoring/dashboard-sqs-metrics.json \
-  --from-file=monitoring/dashboard-athena-security-logs.json
+  --from-file=monitoring/dashboards/dashboard-athena.json
 
 # Add annotation to configmap for auto-discovery
 kubectl annotate configmap grafana-dashboards \

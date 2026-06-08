@@ -227,7 +227,7 @@ WAF/Inspector table은 partition projection을 사용하므로 panel query에 `y
 Athena Security Logs
 ```
 
-`platform/monitoring/dashboards/grafana-dashboards.yaml`에서 GitOps로 배포되며, 기본 partition 변수는 `2026-06-08`입니다.
+`platform/monitoring/dashboards/dashboard-athena.json`에서 관리하고, Kustomize가 `grafana-dashboards` ConfigMap에 합쳐서 GitOps로 배포합니다. 기본 partition 변수는 `2026-06-08`입니다.
 
 ```sql
 SELECT action, httprequest.clientip, httprequest.uri
