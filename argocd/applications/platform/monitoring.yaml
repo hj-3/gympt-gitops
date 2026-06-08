@@ -82,7 +82,7 @@ spec:
         grafana:
           adminPassword: changeme
           plugins:
-            - grafana-athena-datasource
+            - grafana-athena-datasource 2.13.0
           serviceAccount:
             annotations:
               eks.amazonaws.com/role-arn: arn:aws:iam::337112169365:role/gympt-prod-grafana-athena
