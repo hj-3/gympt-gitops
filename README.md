@@ -219,7 +219,15 @@ Workgroup: gympt-prod-workgroup
 Output: s3://gympt-prod-athena-results-337112169365/athena-results/
 ```
 
-WAF/Inspector table은 partition projection을 사용하므로 panel query에 `year/month/day/hour` 조건을 넣어 S3 scan 범위를 제한합니다.
+WAF/Inspector table은 partition projection을 사용하므로 panel query에 `year/month/day` 조건을 넣어 S3 scan 범위를 하루 단위로 제한합니다. 필요하면 `hour` 조건을 추가해 더 좁힐 수 있습니다.
+
+기본 대시보드:
+
+```text
+Athena Security Logs
+```
+
+`platform/monitoring/dashboards/grafana-dashboards.yaml`에서 GitOps로 배포되며, 기본 partition 변수는 `2026-06-08`입니다.
 
 ```sql
 SELECT action, httprequest.clientip, httprequest.uri
