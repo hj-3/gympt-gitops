@@ -81,6 +81,34 @@ spec:
             retention: 30d
         grafana:
           adminPassword: changeme
+          plugins:
+            - grafana-athena-datasource
+          serviceAccount:
+            annotations:
+              eks.amazonaws.com/role-arn: arn:aws:iam::337112169365:role/gympt-prod-grafana-athena
+          datasources:
+            datasources.yaml:
+              apiVersion: 1
+              datasources:
+                - name: Prometheus
+                  type: prometheus
+                  url: http://kube-prometheus-stack-prometheus.monitoring.svc:9090
+                  access: proxy
+                  isDefault: true
+                - name: CloudWatch
+                  type: cloudwatch
+                  jsonData:
+                    authType: default
+                    defaultRegion: ap-northeast-2
+                - name: Athena
+                  type: grafana-athena-datasource
+                  jsonData:
+                    authType: default
+                    defaultRegion: ap-northeast-2
+                    catalog: AwsDataCatalog
+                    database: gympt_prod_catalog
+                    workgroup: gympt-prod-workgroup
+                    outputLocation: s3://gympt-prod-athena-results-337112169365/athena-results/
           dashboardProviders:
             dashboardproviders.yaml:
               apiVersion: 1

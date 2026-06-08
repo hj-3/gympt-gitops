@@ -203,6 +203,33 @@ open http://localhost:3000
 # admin / [secret의 비밀번호]
 ```
 
+### Grafana Athena datasource
+
+Grafana는 `Athena` datasource를 통해 중앙 S3 로그 버킷의 Glue Catalog Table을 조회합니다.
+
+설정값:
+
+```text
+Plugin: grafana-athena-datasource
+Region: ap-northeast-2
+Catalog: AwsDataCatalog
+Database: gympt_prod_catalog
+Workgroup: gympt-prod-workgroup
+Output: s3://gympt-prod-athena-results-337112169365/athena-results/
+```
+
+WAF/Inspector table은 partition projection을 사용하므로 panel query에 `year/month/day/hour` 조건을 넣어 S3 scan 범위를 제한합니다.
+
+```sql
+SELECT action, httprequest.clientip, httprequest.uri
+FROM waf_alb_logs
+WHERE year='2026'
+  AND month='06'
+  AND day='08'
+  AND hour='00'
+LIMIT 100;
+```
+
 ### Grafana ALB Ingress
 
 Grafana Ingress는 AWS Load Balancer Controller의 `alb` IngressClass를 사용합니다. Grafana Service는 `ClusterIP` 타입이므로 ALB target group은 Pod IP를 직접 대상으로 잡아야 합니다.
@@ -332,4 +359,4 @@ kubectl apply -f argocd/applications/
 ---
 
 **저장소**: https://github.com/hj-3/gympt-gitops  
-**최종 업데이트**: 2026-06-07
+**최종 업데이트**: 2026-06-08

@@ -101,6 +101,26 @@ ORDER BY timestamp DESC
 LIMIT 100;
 ```
 
+**Query Security Logs in Grafana:**
+
+Grafana provisions the `Athena` datasource with the `grafana-athena-datasource` plugin. It uses AWS SDK default auth through the Grafana service account IRSA role and queries `gympt_prod_catalog` through `gympt-prod-workgroup`.
+
+Use partition predicates for WAF and Inspector panels to keep Athena scan cost bounded:
+
+```sql
+SELECT
+  from_unixtime(timestamp / 1000) AS time,
+  action,
+  httprequest.clientip AS client_ip,
+  httprequest.uri AS uri
+FROM waf_alb_logs
+WHERE year='2026'
+  AND month='06'
+  AND day='08'
+  AND hour='00'
+LIMIT 100;
+```
+
 ---
 
 ### Remediation (`remediation/`)
@@ -478,6 +498,7 @@ aws_sqs_approximate_number_of_messages_visible_average
 - Limit dashboard refresh rates
 - Use caching for frequently accessed dashboards
 - Disable unused datasources
+- Keep Athena panels scoped by partition/time filters to avoid broad S3 scans
 
 ---
 
@@ -558,5 +579,5 @@ Use Prometheus snapshots or remote write to long-term storage.
 
 ---
 
-**Last Updated:** 2026-05-19  
+**Last Updated:** 2026-06-08
 **Maintainer:** Platform Team
