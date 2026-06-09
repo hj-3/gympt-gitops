@@ -7,7 +7,7 @@ image:
 serviceAccount:
   create: true
   annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-kvs-consumer-pod-role"
+    eks.amazonaws.com/role-arn: "arn:aws:iam::337112169365:role/gympt-prod-kvs-consumer-service-pod-role"
   name: ""
 service:
   type: ClusterIP
