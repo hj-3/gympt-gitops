@@ -312,6 +312,36 @@ kubectl -n monitoring get prometheusrule
 kubectl -n monitoring get servicemonitor
 ```
 
+끄기:
+
+```bash
+# Slack webhook 동기화 리소스와 Alertmanager가 읽는 Secret을 삭제합니다.
+kubectl -n monitoring delete externalsecret alertmanager-slack-webhook --ignore-not-found
+kubectl -n monitoring delete secret alertmanager-slack-webhook --ignore-not-found
+
+# 이미 떠 있는 Alertmanager pod가 기존 Secret mount를 잡고 있을 수 있으므로 재시작합니다.
+kubectl -n monitoring rollout restart statefulset alertmanager-kube-prometheus-stack-alertmanager
+kubectl -n monitoring rollout status statefulset/alertmanager-kube-prometheus-stack-alertmanager
+
+# 둘 다 NotFound면 Slack webhook 경로가 끊긴 상태입니다.
+kubectl -n monitoring get secret alertmanager-slack-webhook
+kubectl -n monitoring get externalsecret alertmanager-slack-webhook
+```
+
+켜기:
+
+```bash
+# AWS Secrets Manager의 slack_webhook_url을 다시 Kubernetes Secret으로 동기화합니다.
+kubectl apply -f platform/external-secrets/cluster-secret-store-aws-secrets-manager.yaml
+kubectl apply -f platform/external-secrets/external-secret-alertmanager-slack.yaml
+
+# Secret이 생성됐는지 확인한 뒤 Alertmanager를 재시작합니다.
+kubectl -n monitoring get externalsecret alertmanager-slack-webhook
+kubectl -n monitoring get secret alertmanager-slack-webhook
+kubectl -n monitoring rollout restart statefulset alertmanager-kube-prometheus-stack-alertmanager
+kubectl -n monitoring rollout status statefulset/alertmanager-kube-prometheus-stack-alertmanager
+```
+
 `platform/monitoring/alertmanagerconfig-slack.yaml`은 별도 AlertmanagerConfig 방식의 참고 매니페스트입니다. 현재 기본 배포 경로는 kube-prometheus-stack Helm values의 Alertmanager 설정입니다.
 
 ### 알람 경로 테스트
