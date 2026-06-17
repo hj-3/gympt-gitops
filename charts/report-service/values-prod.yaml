@@ -2,7 +2,7 @@
 replicaCount: 1
 image:
   repository: 337112169365.dkr.ecr.ap-northeast-2.amazonaws.com/gympt-prod/report-service
-  tag: "21-e5c5af4"
+  tag: "22-7138da2"
   pullPolicy: Always
 serviceAccount:
   create: true
