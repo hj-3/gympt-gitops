@@ -7,6 +7,21 @@ metadata:
     release: monitoring
 spec:
   groups:
+  - name: kvs.rules
+    interval: 30s
+    rules:
+    - alert: KVSActiveSessionsReachedTestPeak
+      expr: |
+        sum(gympt_posture_active_sessions{namespace="gympt-prod"}) >= 2
+      for: 1m
+      labels:
+        severity: warning
+        component: kvs
+      annotations:
+        summary: "KVS active sessions reached test peak"
+        description: "Active posture sessions reached {{ $value }}. This low threshold verifies alert delivery before shutdown."
+        runbook_url: "https://github.com/hj-3/gympt-gitops/blob/main/docs/MONITORING_STRATEGY.md"
+
   - name: sqs.rules
     interval: 30s
     rules:
