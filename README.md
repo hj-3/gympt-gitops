@@ -239,6 +239,14 @@ WHERE year='2026'
 LIMIT 100;
 ```
 
+### Prometheus 알림
+
+2026-06-24 기준 `platform/monitoring/rules/prometheusrule-infrastructure.yaml`에는 KVS/자세분석 active session 테스트 알림이 포함됩니다.
+
+- `KVSActiveSessionsReachedTestPeak`: `gympt_posture_active_sessions` 합계가 2 이상으로 1분 유지되면 warning 알림
+- 목적: 종료 전 실제 사용자 2명 수준의 낮은 peak에서 Alertmanager/Slack 알림 경로 검증
+- AWS 관리형 리소스 자체의 최종 CloudWatch 경보는 `gympt-infra` Terraform에서 관리
+
 ### Grafana ALB Ingress
 
 Grafana Ingress는 AWS Load Balancer Controller의 `alb` IngressClass를 사용합니다. Grafana Service는 `ClusterIP` 타입이므로 ALB target group은 Pod IP를 직접 대상으로 잡아야 합니다.
@@ -398,4 +406,4 @@ kubectl apply -f argocd/applications/
 ---
 
 **저장소**: https://github.com/hj-3/gympt-gitops  
-**최종 업데이트**: 2026-06-08
+**최종 업데이트**: 2026-06-24
