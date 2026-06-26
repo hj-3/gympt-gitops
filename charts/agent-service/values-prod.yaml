@@ -63,7 +63,9 @@ env:
   - name: DYNAMODB_AGENT_INTERACTIONS_TABLE
     # DynamoDB Configuration
 
-    value: "gympt-prod-agent-interactions"
+    value: "gympt-prod-agent_interactions"
+  - name: PYTHONPATH
+    value: "/home/gympt/.local/lib/python3.12/site-packages"
   - name: BACKEND_API_BASE_URL
     # Backend API
 
