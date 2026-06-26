@@ -70,7 +70,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "avg(DCGM_FI_DEV_GPU_UTIL{namespace=\"posture-analysis\"})",
+          "expr": "avg(DCGM_FI_DEV_GPU_UTIL{namespace=\"amazon-cloudwatch\"})",
           "refId": "A"
         }
       ],
@@ -129,7 +129,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "avg(DCGM_FI_DEV_FB_USED{namespace=\"posture-analysis\"} / DCGM_FI_DEV_FB_FREE{namespace=\"posture-analysis\"} * 100)",
+          "expr": "avg(DCGM_FI_DEV_FB_USED{namespace=\"amazon-cloudwatch\"} / DCGM_FI_DEV_FB_FREE{namespace=\"amazon-cloudwatch\"} * 100)",
           "refId": "A"
         }
       ],
@@ -188,7 +188,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "avg(DCGM_FI_DEV_GPU_TEMP{namespace=\"posture-analysis\"})",
+          "expr": "avg(DCGM_FI_DEV_GPU_TEMP{namespace=\"amazon-cloudwatch\"})",
           "refId": "A"
         }
       ],
@@ -239,7 +239,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "avg(DCGM_FI_DEV_POWER_USAGE{namespace=\"posture-analysis\"})",
+          "expr": "avg(DCGM_FI_DEV_POWER_USAGE{namespace=\"amazon-cloudwatch\"})",
           "refId": "A"
         }
       ],
@@ -318,7 +318,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "DCGM_FI_DEV_GPU_UTIL{namespace=\"posture-analysis\"}",
+          "expr": "DCGM_FI_DEV_GPU_UTIL{namespace=\"amazon-cloudwatch\"}",
           "legendFormat": "{{pod}} - GPU {{gpu}}",
           "refId": "A"
         }
@@ -398,7 +398,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "DCGM_FI_DEV_FB_USED{namespace=\"posture-analysis\"} / DCGM_FI_DEV_FB_FREE{namespace=\"posture-analysis\"} * 100",
+          "expr": "DCGM_FI_DEV_FB_USED{namespace=\"amazon-cloudwatch\"} / DCGM_FI_DEV_FB_FREE{namespace=\"amazon-cloudwatch\"} * 100",
           "legendFormat": "{{pod}} - GPU {{gpu}}",
           "refId": "A"
         }
@@ -478,7 +478,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "DCGM_FI_DEV_GPU_TEMP{namespace=\"posture-analysis\"}",
+          "expr": "DCGM_FI_DEV_GPU_TEMP{namespace=\"amazon-cloudwatch\"}",
           "legendFormat": "{{pod}} - GPU {{gpu}}",
           "refId": "A"
         }
@@ -554,7 +554,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "DCGM_FI_DEV_POWER_USAGE{namespace=\"posture-analysis\"}",
+          "expr": "DCGM_FI_DEV_POWER_USAGE{namespace=\"amazon-cloudwatch\"}",
           "legendFormat": "{{pod}} - GPU {{gpu}}",
           "refId": "A"
         }
@@ -630,12 +630,12 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "rate(DCGM_FI_PROF_PCIE_RX_BYTES{namespace=\"posture-analysis\"}[5m])",
+          "expr": "rate(DCGM_FI_PROF_PCIE_RX_BYTES{namespace=\"amazon-cloudwatch\"}[5m])",
           "legendFormat": "{{pod}} - GPU {{gpu}} - RX",
           "refId": "A"
         },
         {
-          "expr": "rate(DCGM_FI_PROF_PCIE_TX_BYTES{namespace=\"posture-analysis\"}[5m])",
+          "expr": "rate(DCGM_FI_PROF_PCIE_TX_BYTES{namespace=\"amazon-cloudwatch\"}[5m])",
           "legendFormat": "{{pod}} - GPU {{gpu}} - TX",
           "refId": "B"
         }
@@ -711,12 +711,12 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "DCGM_FI_DEV_SM_CLOCK{namespace=\"posture-analysis\"}",
+          "expr": "DCGM_FI_DEV_SM_CLOCK{namespace=\"amazon-cloudwatch\"}",
           "legendFormat": "{{pod}} - GPU {{gpu}} - SM",
           "refId": "A"
         },
         {
-          "expr": "DCGM_FI_DEV_MEM_CLOCK{namespace=\"posture-analysis\"}",
+          "expr": "DCGM_FI_DEV_MEM_CLOCK{namespace=\"amazon-cloudwatch\"}",
           "legendFormat": "{{pod}} - GPU {{gpu}} - Memory",
           "refId": "B"
         }
