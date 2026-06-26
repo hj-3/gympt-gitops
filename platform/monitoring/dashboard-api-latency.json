@@ -70,7 +70,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{namespace=~\"backend-api|agent-service|posture-analysis|report-service\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{namespace=\"gympt-prod\"}[5m])) by (le))",
           "refId": "A"
         }
       ],
@@ -129,7 +129,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{namespace=~\"backend-api|agent-service|posture-analysis|report-service\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{namespace=\"gympt-prod\"}[5m])) by (le))",
           "refId": "A"
         }
       ],
@@ -188,7 +188,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{namespace=~\"backend-api|agent-service|posture-analysis|report-service\"}[5m])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{namespace=\"gympt-prod\"}[5m])) by (le))",
           "refId": "A"
         }
       ],
@@ -239,7 +239,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{namespace=~\"backend-api|agent-service|posture-analysis|report-service\"}[5m]))",
+          "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"gympt-prod\"}[5m]))",
           "refId": "A"
         }
       ],
@@ -314,17 +314,17 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{namespace=~\"backend-api|agent-service|posture-analysis|report-service\"}[5m])) by (le, namespace))",
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{namespace=\"gympt-prod\"}[5m])) by (le, namespace))",
           "legendFormat": "{{namespace}} - P50",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{namespace=~\"backend-api|agent-service|posture-analysis|report-service\"}[5m])) by (le, namespace))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{namespace=\"gympt-prod\"}[5m])) by (le, namespace))",
           "legendFormat": "{{namespace}} - P95",
           "refId": "B"
         },
         {
-          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{namespace=~\"backend-api|agent-service|posture-analysis|report-service\"}[5m])) by (le, namespace))",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{namespace=\"gympt-prod\"}[5m])) by (le, namespace))",
           "legendFormat": "{{namespace}} - P99",
           "refId": "C"
         }
@@ -400,7 +400,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{namespace=~\"backend-api|agent-service|posture-analysis|report-service\"}[5m])) by (namespace)",
+          "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"gympt-prod\"}[5m])) by (namespace)",
           "legendFormat": "{{namespace}}",
           "refId": "A"
         }
@@ -476,17 +476,17 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{namespace=~\"backend-api|agent-service|posture-analysis|report-service\",status=~\"2..\"}[5m])) by (namespace)",
+          "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"gympt-prod\",status=~\"2..\"}[5m])) by (namespace)",
           "legendFormat": "{{namespace}} - 2xx",
           "refId": "A"
         },
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{namespace=~\"backend-api|agent-service|posture-analysis|report-service\",status=~\"4..\"}[5m])) by (namespace)",
+          "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"gympt-prod\",status=~\"4..\"}[5m])) by (namespace)",
           "legendFormat": "{{namespace}} - 4xx",
           "refId": "B"
         },
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{namespace=~\"backend-api|agent-service|posture-analysis|report-service\",status=~\"5..\"}[5m])) by (namespace)",
+          "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"gympt-prod\",status=~\"5..\"}[5m])) by (namespace)",
           "legendFormat": "{{namespace}} - 5xx",
           "refId": "C"
         }
@@ -562,7 +562,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{namespace=\"backend-api\"}[5m])) by (le, uri))",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{namespace=\"gympt-prod\"}[5m])) by (le, uri))",
           "legendFormat": "{{uri}}",
           "refId": "A"
         }

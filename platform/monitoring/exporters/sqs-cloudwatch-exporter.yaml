@@ -1,0 +1,136 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sqs-cloudwatch-exporter
+  namespace: monitoring
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::337112169365:role/gympt-prod-sqs-cloudwatch-exporter
+  labels:
+    app.kubernetes.io/name: sqs-cloudwatch-exporter
+    app.kubernetes.io/part-of: monitoring
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sqs-cloudwatch-exporter-config
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sqs-cloudwatch-exporter
+    app.kubernetes.io/part-of: monitoring
+data:
+  config.yml: |
+    region: ap-northeast-2
+    period_seconds: 60
+    range_seconds: 600
+    delay_seconds: 60
+    metrics:
+      - aws_namespace: AWS/SQS
+        aws_metric_name: ApproximateNumberOfMessagesVisible
+        aws_dimensions: [QueueName]
+        aws_statistics: [Average]
+      - aws_namespace: AWS/SQS
+        aws_metric_name: ApproximateNumberOfMessagesNotVisible
+        aws_dimensions: [QueueName]
+        aws_statistics: [Average]
+      - aws_namespace: AWS/SQS
+        aws_metric_name: ApproximateAgeOfOldestMessage
+        aws_dimensions: [QueueName]
+        aws_statistics: [Maximum]
+      - aws_namespace: AWS/SQS
+        aws_metric_name: NumberOfMessagesSent
+        aws_dimensions: [QueueName]
+        aws_statistics: [Sum]
+      - aws_namespace: AWS/SQS
+        aws_metric_name: NumberOfMessagesReceived
+        aws_dimensions: [QueueName]
+        aws_statistics: [Sum]
+      - aws_namespace: AWS/SQS
+        aws_metric_name: NumberOfMessagesDeleted
+        aws_dimensions: [QueueName]
+        aws_statistics: [Sum]
+      - aws_namespace: AWS/SQS
+        aws_metric_name: SentMessageSize
+        aws_dimensions: [QueueName]
+        aws_statistics: [Average]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqs-cloudwatch-exporter
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sqs-cloudwatch-exporter
+    app.kubernetes.io/part-of: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sqs-cloudwatch-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sqs-cloudwatch-exporter
+        app.kubernetes.io/part-of: monitoring
+    spec:
+      serviceAccountName: sqs-cloudwatch-exporter
+      containers:
+        - name: cloudwatch-exporter
+          image: prom/cloudwatch-exporter:v0.15.5
+          imagePullPolicy: IfNotPresent
+          args:
+            - /config/config.yml
+          ports:
+            - name: metrics
+              containerPort: 9106
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: sqs-cloudwatch-exporter-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqs-cloudwatch-exporter
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sqs-cloudwatch-exporter
+    app.kubernetes.io/part-of: monitoring
+spec:
+  selector:
+    app.kubernetes.io/name: sqs-cloudwatch-exporter
+  ports:
+    - name: metrics
+      port: 9106
+      targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sqs-cloudwatch-exporter
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sqs-cloudwatch-exporter
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sqs-cloudwatch-exporter
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 60s
+      scrapeTimeout: 30s

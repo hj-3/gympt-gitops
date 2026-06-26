@@ -70,7 +70,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "avg(jvm_memory_used_bytes{area=\"heap\",namespace=\"backend-api\"} / jvm_memory_max_bytes{area=\"heap\",namespace=\"backend-api\"}) * 100",
+          "expr": "avg(jvm_memory_used_bytes{area=\"heap\",namespace=\"gympt-prod\"} / jvm_memory_max_bytes{area=\"heap\",namespace=\"gympt-prod\"}) * 100",
           "refId": "A"
         }
       ],
@@ -129,7 +129,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "avg(process_cpu_usage{namespace=\"backend-api\"}) * 100",
+          "expr": "avg(process_cpu_usage{namespace=\"gympt-prod\"}) * 100",
           "refId": "A"
         }
       ],
@@ -188,7 +188,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "avg(jvm_threads_live{namespace=\"backend-api\"})",
+          "expr": "avg(jvm_threads_live{namespace=\"gympt-prod\"})",
           "refId": "A"
         }
       ],
@@ -239,7 +239,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "avg(jvm_classes_loaded{namespace=\"backend-api\"})",
+          "expr": "avg(jvm_classes_loaded{namespace=\"gympt-prod\"})",
           "refId": "A"
         }
       ],
@@ -314,12 +314,12 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "jvm_memory_used_bytes{area=\"heap\",namespace=\"backend-api\"}",
+          "expr": "jvm_memory_used_bytes{area=\"heap\",namespace=\"gympt-prod\"}",
           "legendFormat": "{{id}} - used",
           "refId": "A"
         },
         {
-          "expr": "jvm_memory_committed_bytes{area=\"heap\",namespace=\"backend-api\"}",
+          "expr": "jvm_memory_committed_bytes{area=\"heap\",namespace=\"gympt-prod\"}",
           "legendFormat": "{{id}} - committed",
           "refId": "B"
         }
@@ -395,12 +395,12 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "jvm_memory_used_bytes{area=\"nonheap\",namespace=\"backend-api\"}",
+          "expr": "jvm_memory_used_bytes{area=\"nonheap\",namespace=\"gympt-prod\"}",
           "legendFormat": "{{id}} - used",
           "refId": "A"
         },
         {
-          "expr": "jvm_memory_committed_bytes{area=\"nonheap\",namespace=\"backend-api\"}",
+          "expr": "jvm_memory_committed_bytes{area=\"nonheap\",namespace=\"gympt-prod\"}",
           "legendFormat": "{{id}} - committed",
           "refId": "B"
         }
@@ -476,7 +476,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "rate(jvm_gc_pause_seconds_count{namespace=\"backend-api\"}[5m])",
+          "expr": "rate(jvm_gc_pause_seconds_count{namespace=\"gympt-prod\"}[5m])",
           "legendFormat": "{{action}} - {{cause}}",
           "refId": "A"
         }
@@ -552,7 +552,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "rate(jvm_gc_pause_seconds_sum{namespace=\"backend-api\"}[5m])",
+          "expr": "rate(jvm_gc_pause_seconds_sum{namespace=\"gympt-prod\"}[5m])",
           "legendFormat": "{{action}} - {{cause}}",
           "refId": "A"
         }
@@ -628,12 +628,12 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "jvm_threads_live{namespace=\"backend-api\"}",
+          "expr": "jvm_threads_live{namespace=\"gympt-prod\"}",
           "legendFormat": "{{pod}} - live",
           "refId": "A"
         },
         {
-          "expr": "jvm_threads_daemon{namespace=\"backend-api\"}",
+          "expr": "jvm_threads_daemon{namespace=\"gympt-prod\"}",
           "legendFormat": "{{pod}} - daemon",
           "refId": "B"
         }
@@ -709,7 +709,7 @@
       "pluginVersion": "9.0.0",
       "targets": [
         {
-          "expr": "jvm_classes_loaded{namespace=\"backend-api\"}",
+          "expr": "jvm_classes_loaded{namespace=\"gympt-prod\"}",
           "legendFormat": "{{pod}}",
           "refId": "A"
         }
